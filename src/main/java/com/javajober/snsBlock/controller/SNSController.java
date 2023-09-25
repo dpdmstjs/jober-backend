@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.javajober.core.message.SuccessMessage;
 import com.javajober.core.util.ApiUtils;
+import com.javajober.snsBlock.dto.SNSBlockRequest;
 import com.javajober.snsBlock.dto.SNSBlockRequests;
 import com.javajober.snsBlock.service.SNSBlockService;
 
@@ -23,10 +24,8 @@ public class SNSController {
 	}
 
 	@PostMapping("/sns")
-	public ResponseEntity<?> save(@RequestBody final SNSBlockRequests snsBlockRequests) {
-
+	public ResponseEntity<?> save(@RequestBody final SNSBlockRequests<SNSBlockRequest> snsBlockRequests) {
 		snsBlockService.save(snsBlockRequests);
-
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.CREATED, SuccessMessage.CREATE_SUCCESS, null));
 	}
 }
