@@ -17,7 +17,7 @@ public class SNSBlockResponse {
 	}
 
 	@Builder
-	public SNSBlockResponse(Long snsBlockId, String snsUUID, String snsType, String snsURL) {
+	public SNSBlockResponse(final Long snsBlockId, final String snsUUID, final String snsType, final String snsURL) {
 		this.snsBlockId = snsBlockId;
 		this.snsUUID = snsUUID;
 		this.snsType = snsType;
