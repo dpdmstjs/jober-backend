@@ -18,11 +18,10 @@ public class SNSBlockService {
 	}
 
 	@Transactional
-	public void save(final SNSBlockRequests snsBlockRequests) {
-		snsBlockRequests.getSnsBlocks().forEach(snsBlockRequest -> {
-			SNSBlock snsBlock = SNSBlockRequest.toEntity(snsBlockRequest);
+	public void save(final SNSBlockRequests<SNSBlockRequest> snsBlockRequests) {
+		snsBlockRequests.getSubData().forEach(snsBlockrequest -> {
+			SNSBlock snsBlock = SNSBlockRequest.toEntity(snsBlockrequest);
 			snsBlockRepository.save(snsBlock);
 		});
 	}
-
 }
