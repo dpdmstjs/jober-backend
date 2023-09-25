@@ -12,13 +12,13 @@ public class SNSBlockRequest {
 	private SNSType snsType;
 	private String snsURL;
 
-
 	private SNSBlockRequest() {
 
 	}
 
-	public static SNSBlock toEntity(SNSBlockRequest snsBlockRequest) {
+	public static SNSBlock toEntity(final SNSBlockRequest snsBlockRequest) {
 		return SNSBlock.builder()
+			.snsUUID(snsBlockRequest.getSnsUUID())
 			.snsType(snsBlockRequest.getSnsType())
 			.snsURL(snsBlockRequest.getSnsURL())
 			.build();
