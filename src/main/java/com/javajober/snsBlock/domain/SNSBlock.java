@@ -1,4 +1,4 @@
-package com.javajober.entity;
+package com.javajober.snsBlock.domain;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +19,9 @@ public class SNSBlock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "sns_uuid", nullable = false)
+    private String snsUUID;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sns_type", nullable = false)
@@ -41,7 +44,8 @@ public class SNSBlock {
     protected SNSBlock() {}
 
     @Builder
-    public SNSBlock(final SNSType snsType, final String snsURL) {
+    public SNSBlock(final String snsUUID, final SNSType snsType, final String snsURL) {
+        this.snsUUID = snsUUID;
         this.snsType = snsType;
         this.snsURL = snsURL;
     }
