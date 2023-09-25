@@ -1,18 +1,19 @@
 package com.javajober.snsBlock.dto;
 
 import java.util.List;
+
 import lombok.Getter;
 
 @Getter
-public class SNSBlockRequests {
+public class SNSBlockRequests<T> {
 
-	List<SNSBlockRequest> snsBlocks;
+	List<T> subData;
 
 	private SNSBlockRequests() {
 
 	}
 
-	public SNSBlockRequests(final List<SNSBlockRequest> snsBlocks) {
-		this.snsBlocks = snsBlocks;
+	public SNSBlockRequests(List<T> subData) {
+		this.subData = subData;
 	}
 }
