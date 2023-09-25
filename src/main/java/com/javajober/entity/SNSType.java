@@ -3,7 +3,7 @@ package com.javajober.entity;
 import lombok.Getter;
 
 @Getter
-public enum SnsType {
+public enum SNSType {
 
     INSTAGRAM("인스타그램"),
     FACEBOOK("페이스북"),
@@ -12,7 +12,7 @@ public enum SnsType {
 
     private final String description;
 
-    private SnsType(final String description) {
+    private SNSType(final String description) {
         this.description = description;
     }
 }
