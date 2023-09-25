@@ -1,4 +1,4 @@
-package com.javajober.entity;
+package com.javajober.snsBlock.domain;
 
 import lombok.Getter;
 
@@ -10,10 +10,10 @@ public enum SNSType {
     LINKEDIN("링크드인"),
     BEHANCE("비핸스");
 
-    private final String description;
+    private final String title;
 
-    private SNSType(final String description) {
-        this.description = description;
+    SNSType(final String title) {
+        this.title = title;
     }
 }
 
