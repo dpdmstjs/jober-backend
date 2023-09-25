@@ -9,7 +9,7 @@ import lombok.Getter;
 public class SNSBlockRequest {
 
 	private String snsUUID;
-	private SNSType snsType;
+	private String snsType;
 	private String snsURL;
 
 	private SNSBlockRequest() {
@@ -19,7 +19,7 @@ public class SNSBlockRequest {
 	public static SNSBlock toEntity(final SNSBlockRequest snsBlockRequest) {
 		return SNSBlock.builder()
 			.snsUUID(snsBlockRequest.getSnsUUID())
-			.snsType(snsBlockRequest.getSnsType())
+			.snsType(SNSType.findSNSTypeByString(snsBlockRequest.getSnsType()))
 			.snsURL(snsBlockRequest.getSnsURL())
 			.build();
 	}
