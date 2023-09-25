@@ -1,19 +1,31 @@
 package com.javajober.snsBlock.domain;
 
+import java.util.Arrays;
+
 import lombok.Getter;
 
 @Getter
 public enum SNSType {
 
-    INSTAGRAM("인스타그램"),
-    FACEBOOK("페이스북"),
-    LINKEDIN("링크드인"),
-    BEHANCE("비핸스");
+	INSTAGRAM("instagram", "인스타그램"),
+	FACEBOOK("facebook", "페이스북"),
+	LINKEDIN("likedin", "링크드인"),
+	BEHANCE("behance", "비핸스"),
+    EMPTY("empty", "없음");
 
-    private final String title;
+	private final String engTitle;
+	private final String korTitle;
 
-    SNSType(final String title) {
-        this.title = title;
+	SNSType(final String engTitle, final String korTitle) {
+		this.engTitle = engTitle;
+		this.korTitle = korTitle;
+	}
+
+    public static SNSType findSNSTypeByString(String type) {
+        return Arrays.stream(values())
+            .filter(snsType -> snsType.getEngTitle().equals(type))
+            .findAny()
+            .orElse(EMPTY);
     }
 }
 
