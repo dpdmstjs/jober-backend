@@ -13,7 +13,7 @@ import com.javajober.snsBlock.dto.SNSBlockRequest;
 import com.javajober.snsBlock.dto.SNSBlockRequests;
 import com.javajober.snsBlock.service.SNSBlockService;
 
-@RequestMapping("/api/wall")
+@RequestMapping("/api/wall/sns")
 @RestController
 public class SNSController {
 
@@ -23,8 +23,8 @@ public class SNSController {
 		this.snsBlockService = snsBlockService;
 	}
 
-	@PostMapping("/sns")
-	public ResponseEntity<?> save(@RequestBody final SNSBlockRequests<SNSBlockRequest> snsBlockRequests) {
+	@PostMapping("/")
+	public ResponseEntity<ApiUtils.ApiResponse> save(@RequestBody final SNSBlockRequests<SNSBlockRequest> snsBlockRequests) {
 		snsBlockService.save(snsBlockRequests);
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.CREATED, SuccessMessage.CREATE_SUCCESS, null));
 	}
