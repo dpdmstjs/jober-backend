@@ -9,7 +9,7 @@ public enum SNSType {
 
 	INSTAGRAM("instagram", "인스타그램"),
 	FACEBOOK("facebook", "페이스북"),
-	LINKEDIN("likedin", "링크드인"),
+	LINKEDIN("linkedin", "링크드인"),
 	BEHANCE("behance", "비핸스"),
     EMPTY("empty", "없음");
 
