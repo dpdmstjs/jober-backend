@@ -5,12 +5,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.javajober.snsBlock.domain.SNSBlock;
+import com.javajober.snsBlock.domain.SNSType;
 import com.javajober.snsBlock.dto.SNSBlockRequest;
 import com.javajober.snsBlock.dto.SNSBlockRequests;
 import com.javajober.snsBlock.dto.SNSBlockResponse;
 import com.javajober.snsBlock.dto.SNSBlockResponses;
+import com.javajober.snsBlock.dto.SNSBlockUpdateRequest;
 import com.javajober.snsBlock.repository.SNSBlockRepository;
 
 @Service
@@ -24,8 +27,8 @@ public class SNSBlockService {
 
 	@Transactional
 	public void save(final SNSBlockRequests<SNSBlockRequest> snsBlockRequests) {
-		snsBlockRequests.getSubData().forEach(snsBlockrequest -> {
-			SNSBlock snsBlock = SNSBlockRequest.toEntity(snsBlockrequest);
+		snsBlockRequests.getSubData().forEach(snsBlockRequest -> {
+			SNSBlock snsBlock = SNSBlockRequest.toEntity(snsBlockRequest);
 			snsBlockRepository.save(snsBlock);
 		});
 	}
@@ -38,5 +41,18 @@ public class SNSBlockService {
 				.collect(Collectors.toList());
 
 		return new SNSBlockResponses(snsBlocks);
+	}
+
+	public void update(@RequestBody final SNSBlockRequests<SNSBlockUpdateRequest> snsBlockRequests) {
+		snsBlockRequests.getSubData().forEach(snsBlockRequest -> {
+
+			SNSBlock snsBlock = snsBlockRepository.findSNSBlock(snsBlockRequest.getSnsId());
+
+			SNSType snsType = SNSType.findSNSTypeByString(snsBlockRequest.getSnsType());
+
+			snsBlock.update(snsBlockRequest.getSnsUUID(), snsType, snsBlockRequest.getSnsURL());
+
+			snsBlockRepository.save(snsBlock);
+		});
 	}
 }
