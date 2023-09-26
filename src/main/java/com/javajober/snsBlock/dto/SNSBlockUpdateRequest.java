@@ -1,8 +1,5 @@
 package com.javajober.snsBlock.dto;
 
-import com.javajober.snsBlock.domain.SNSBlock;
-import com.javajober.snsBlock.domain.SNSType;
-
 import lombok.Getter;
 
 @Getter
