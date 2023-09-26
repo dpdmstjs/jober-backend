@@ -2,6 +2,9 @@ package com.javajober.snsBlock.dto;
 
 import java.util.List;
 
+import lombok.Getter;
+
+@Getter
 public class SNSBlockResponses {
 	List<SNSBlockResponse> snsBlockResponses;
 
