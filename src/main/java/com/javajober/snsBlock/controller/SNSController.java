@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,9 +17,10 @@ import com.javajober.core.util.ApiUtils;
 import com.javajober.snsBlock.dto.SNSBlockRequest;
 import com.javajober.snsBlock.dto.SNSBlockRequests;
 import com.javajober.snsBlock.dto.SNSBlockResponses;
+import com.javajober.snsBlock.dto.SNSBlockUpdateRequest;
 import com.javajober.snsBlock.service.SNSBlockService;
 
-@RequestMapping("/api/wall/sns")
+@RequestMapping("/api/wall/sns/blocks")
 @RestController
 public class SNSController {
 
@@ -28,15 +30,21 @@ public class SNSController {
 		this.snsBlockService = snsBlockService;
 	}
 
-	@PostMapping("/blocks")
+	@PostMapping
 	public ResponseEntity<ApiUtils.ApiResponse> save(@RequestBody final SNSBlockRequests<SNSBlockRequest> snsBlockRequests) {
 		snsBlockService.save(snsBlockRequests);
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.CREATED, SuccessMessage.CREATE_SUCCESS, null));
 	}
 
-	@GetMapping("/blocks")
+	@GetMapping
 	public ResponseEntity<ApiUtils.ApiResponse<SNSBlockResponses>> find(@RequestParam final List<Long> snsBlockIds) {
 		SNSBlockResponses response = snsBlockService.find(snsBlockIds);
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.READ_SUCCESS, response));
+	}
+
+	@PutMapping
+	public ResponseEntity<ApiUtils.ApiResponse> update(@RequestBody final SNSBlockRequests<SNSBlockUpdateRequest> snsBlockRequests) {
+		snsBlockService.update(snsBlockRequests);
+		return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.CREATE_SUCCESS, null));
 	}
 }
