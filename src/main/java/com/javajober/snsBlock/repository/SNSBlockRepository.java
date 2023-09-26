@@ -8,5 +8,5 @@ import com.javajober.snsBlock.domain.SNSBlock;
 
 public interface SNSBlockRepository extends Repository<SNSBlock, Long> {
 	SNSBlock save(SNSBlock snsBlock);
-	List<SNSBlock> findAllById(List<Long> id);
+	List<SNSBlock> findAllById(Iterable<Long> id);
 }
