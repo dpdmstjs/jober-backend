@@ -49,4 +49,10 @@ public class SNSBlock {
         this.snsType = snsType;
         this.snsURL = snsURL;
     }
+
+    public void update(final String snsUUID, final SNSType snsType, final String snsURL) {
+        this.snsUUID = snsUUID;
+        this.snsType = snsType;
+        this.snsURL = snsURL;
+    }
 }
