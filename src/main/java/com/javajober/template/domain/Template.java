@@ -1,4 +1,4 @@
-package com.javajober.entity;
+package com.javajober.template.domain;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+
+import com.javajober.entity.SpaceWallCategory;
 
 @Getter
 @Table(name = "template")

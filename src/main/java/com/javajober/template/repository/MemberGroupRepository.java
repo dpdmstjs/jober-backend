@@ -1,12 +1,13 @@
 package com.javajober.template.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.Repository;
 
 import com.javajober.core.error.exception.Exception404;
 import com.javajober.core.message.ErrorMessage;
-import com.javajober.entity.MemberGroup;
+import com.javajober.member.domain.MemberGroup;
 
 
 public interface MemberGroupRepository extends Repository<MemberGroup, Long> {
@@ -20,5 +21,12 @@ public interface MemberGroupRepository extends Repository<MemberGroup, Long> {
 		}
 
 		return memberGroups;
+	}
+
+	Optional<MemberGroup> findById(Long Id);
+
+	default MemberGroup getById(final Long Id){
+		return findById(Id)
+			.orElseThrow(() -> new Exception404(ErrorMessage.MEMBER_NOT_FOUND));
 	}
 }

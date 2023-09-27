@@ -1,4 +1,4 @@
-package com.javajober.entity;
+package com.javajober.template.domain;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+
+import com.javajober.member.domain.MemberGroup;
 
 @Getter
 @Table(name = "template_auth")
@@ -20,11 +22,15 @@ public class TemplateAuth {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auth_member_id",  nullable = false)
+    @JoinColumn(name = "member_group_id",  nullable = false)
     private MemberGroup authMember;
 
     @Column(name = "has_access")
     private Boolean hasAccess;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "template_block_id")
+    private TemplateBlock templateBlock;
 
     @CreatedDate
     @Column(name="created_at")
@@ -42,8 +48,13 @@ public class TemplateAuth {
     }
 
     @Builder
-    public TemplateAuth(final MemberGroup authMember, final Boolean hasAccess) {
+    public TemplateAuth(final MemberGroup authMember, final Boolean hasAccess, final TemplateBlock templateBlock) {
         this.authMember = authMember;
         this.hasAccess = hasAccess;
+        this.templateBlock = templateBlock;
+    }
+
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
