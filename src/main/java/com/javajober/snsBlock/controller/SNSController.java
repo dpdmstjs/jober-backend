@@ -2,6 +2,7 @@ package com.javajober.snsBlock.controller;
 
 import java.util.List;
 
+import com.javajober.snsBlock.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.javajober.core.message.SuccessMessage;
 import com.javajober.core.util.ApiUtils;
-import com.javajober.snsBlock.dto.SNSBlockRequest;
-import com.javajober.snsBlock.dto.SNSBlockRequests;
-import com.javajober.snsBlock.dto.SNSBlockResponses;
-import com.javajober.snsBlock.dto.SNSBlockUpdateRequest;
 import com.javajober.snsBlock.service.SNSBlockService;
 
 @RequestMapping("/api/wall/sns/blocks")
@@ -46,5 +43,11 @@ public class SNSController {
 	public ResponseEntity<ApiUtils.ApiResponse> update(@RequestBody final SNSBlockRequests<SNSBlockUpdateRequest> snsBlockRequests) {
 		snsBlockService.update(snsBlockRequests);
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.CREATE_SUCCESS, null));
+	}
+
+	@PutMapping("/history")
+	public ResponseEntity<ApiUtils.ApiResponse> delete(@RequestBody final SNSBlockDeleteRequest snsBlockDeleteRequest) {
+		snsBlockService.delete(snsBlockDeleteRequest);
+		return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.DELETE_SUCCESS, null));
 	}
 }
