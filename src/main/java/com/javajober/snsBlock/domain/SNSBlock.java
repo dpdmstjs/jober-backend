@@ -55,4 +55,8 @@ public class SNSBlock {
         this.snsType = snsType;
         this.snsURL = snsURL;
     }
+
+    public void updateTimeOnDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }
