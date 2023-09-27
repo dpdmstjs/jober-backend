@@ -3,17 +3,13 @@ package com.javajober.snsBlock.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.javajober.snsBlock.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.javajober.snsBlock.domain.SNSBlock;
 import com.javajober.snsBlock.domain.SNSType;
-import com.javajober.snsBlock.dto.SNSBlockRequest;
-import com.javajober.snsBlock.dto.SNSBlockRequests;
-import com.javajober.snsBlock.dto.SNSBlockResponse;
-import com.javajober.snsBlock.dto.SNSBlockResponses;
-import com.javajober.snsBlock.dto.SNSBlockUpdateRequest;
 import com.javajober.snsBlock.repository.SNSBlockRepository;
 
 @Service
@@ -54,5 +50,14 @@ public class SNSBlockService {
 
 			snsBlockRepository.save(snsBlock);
 		});
+	}
+
+	public void delete(final SNSBlockDeleteRequest snsBlockDeleteRequest) {
+		List<SNSBlock> snsBlocks = snsBlockRepository.findAllById(snsBlockDeleteRequest.getSnsBlockIds());
+
+		for (SNSBlock snsBlock: snsBlocks) {
+			snsBlock.updateTimeOnDelete();
+		}
+		snsBlockRepository.saveAll(snsBlocks);
 	}
 }
