@@ -5,15 +5,17 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import com.javajober.core.error.exception.Exception404;
-import com.javajober.core.message.ErrorMessage;
 import com.javajober.member.domain.MemberGroup;
 import com.javajober.template.domain.TemplateAuth;
 import com.javajober.template.domain.TemplateBlock;
+import com.javajober.template.dto.TemplateBlockDeleteRequest;
 import com.javajober.template.dto.TemplateBlockRequest;
 import com.javajober.template.dto.TemplateBlockRequests;
 import com.javajober.template.dto.TemplateBlockResponse;
+import com.javajober.template.dto.TemplateBlockResponses;
+import com.javajober.template.dto.TemplateBlockUpdateRequest;
 import com.javajober.template.repository.MemberGroupRepository;
 import com.javajober.template.repository.TemplateAuthRepository;
 import com.javajober.template.repository.TemplateBlockRepository;
@@ -53,50 +55,74 @@ public class TemplateBlockService {
 	}
 
 	@Transactional
-	public TemplateBlockResponse getTemplateBlock(Long templateBlockId){
+	public TemplateBlockResponses find(final List<Long> templateBlockIds){
 
-		TemplateBlock templateBlock = templateBlockRepository.getById(templateBlockId);
+		List<TemplateBlockResponse> templateBlockResponses = new ArrayList<>();
 
-		List<TemplateAuth> templateAuths = templateAuthRepository.findByTemplateBlockId(templateBlockId);
+		for(Long templateBlockId : templateBlockIds){
 
-		if(templateAuths == null || templateAuths.isEmpty()){
-			throw new Exception404(ErrorMessage.TEMPLATE_AUTH_NOT_FOUND);
-		}
+			TemplateBlock templateblock = templateBlockRepository.getById(templateBlockId);
 
-		List<Long> hasAccessTemplateAuth = new ArrayList<>();
-		List<Long> hasDenyTemplateAuth = new ArrayList<>();
+			List<TemplateAuth> templateAuths = templateAuthRepository.findByTemplateBlockId(templateblock.getId());
 
-		for (TemplateAuth auth : templateAuths) {
-			if (auth.getHasAccess()) {
-				hasAccessTemplateAuth.add(auth.getAuthMember().getId());
-			} else {
-				hasDenyTemplateAuth.add(auth.getAuthMember().getId());
+			List<Long> hasAccessTemplateAuth = new ArrayList<>();
+			List<Long> hasDenyTemplateAuth = new ArrayList<>();
+
+			for (TemplateAuth auth : templateAuths) {
+				if (auth.getHasAccess()) {
+					hasAccessTemplateAuth.add(auth.getAuthMember().getId());
+				} else {
+					hasDenyTemplateAuth.add(auth.getAuthMember().getId());
+				}
 			}
+			TemplateBlockResponse response = TemplateBlockResponse.from(templateblock,hasAccessTemplateAuth,hasDenyTemplateAuth);
+
+			templateBlockResponses.add(response);
 		}
-		return TemplateBlockResponse.from(templateBlock, hasAccessTemplateAuth, hasDenyTemplateAuth);
+
+		return new TemplateBlockResponses(templateBlockResponses);
+	}
+
+	@Transactional
+	public void update(@RequestBody final TemplateBlockRequests<TemplateBlockUpdateRequest> templateBlockRequests){
+
+		for(TemplateBlockUpdateRequest templateBlockRequest : templateBlockRequests.getSubData()){
+
+			TemplateBlock templateBlock = templateBlockRepository.getById(templateBlockRequest.getId());
+			templateBlock.update(templateBlockRequest.getTemplateUUID(), templateBlockRequest.getTemplateTitle(), templateBlockRequest.getTemplateDescription());
+
+			List<TemplateAuth> authIds = templateAuthRepository.findByTemplateBlockId(templateBlock.getId());
+
+			for (TemplateAuth auth : authIds) {
+				MemberGroup memberGroup = memberGroupRepository.getById(auth.getId());
+				Boolean hasAccess = templateBlockRequest.getHasAccessTemplateAuth().contains(auth.getId());
+				auth.update(memberGroup,hasAccess,templateBlock);
+				templateAuthRepository.save(auth);
+			}
+
+			templateBlockRepository.save(templateBlock);
+		}
 	}
 
 
-
 	@Transactional
-	public void deleteTemplateBlock(Long templateBlockId){
+	public void delete(final TemplateBlockDeleteRequest templateBlockDeleteRequest){
 
-		TemplateBlock templateBlock = templateBlockRepository.getById(templateBlockId);
+		List<TemplateBlock> templateBlocks = templateBlockRepository.findAllById(templateBlockDeleteRequest.getTemplateBlockIds());
 
-		templateBlock.setDeletedAt();
+		for(TemplateBlock templateBlock : templateBlocks){
 
-		List<TemplateAuth> authIds = templateAuthRepository.findByTemplateBlock(templateBlock);
+			templateBlock.setDeletedAt();
 
-		if(authIds == null || authIds.isEmpty()){
-			throw new Exception404(ErrorMessage.TEMPLATE_AUTH_NOT_FOUND);
+			List<TemplateAuth> authIds = templateAuthRepository.findByTemplateBlock(templateBlock);
+
+			for (TemplateAuth auth : authIds) {
+				auth.setDeletedAt();
+				templateAuthRepository.save(auth);
+			}
 		}
 
-		for (TemplateAuth auth : authIds) {
-			templateAuthRepository.delete(auth);
-			auth.setDeletedAt();
-		}
-
-		templateBlockRepository.delete(templateBlock);
+		templateBlockRepository.saveAll(templateBlocks);
 	}
 
 }
