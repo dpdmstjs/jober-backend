@@ -1,4 +1,4 @@
-package com.javajober.entity;
+package com.javajober.fileBlock.domain;
 
 
 import lombok.Builder;
@@ -50,6 +50,16 @@ public class FileBlock {
         this.fileTitle = fileTitle;
         this.fileDescription = fileDescription;
         this.fileName = fileName;
+    }
+
+    public void update(FileBlock fileBlock) {
+        this.fileTitle = fileBlock.getFileTitle();
+        this.fileDescription = fileBlock.getFileDescription();
+        this.fileName = fileBlock.getFileName();
+    }
+
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
 
