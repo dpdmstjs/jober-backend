@@ -22,6 +22,9 @@ import com.javajober.template.dto.TemplateBlockRequest;
 import com.javajober.template.repository.MemberGroupRepository;
 import com.javajober.template.repository.TemplateAuthRepository;
 import com.javajober.template.repository.TemplateBlockRepository;
+import com.javajober.wallInfoBlock.domain.WallInfoBlock;
+import com.javajober.wallInfoBlock.dto.request.WallInfoBlockRequest;
+import com.javajober.wallInfoBlock.repository.WallInfoBlockRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,16 +40,20 @@ public class SpaceWallService {
 	private final TemplateBlockRepository templateBlockRepository;
 	private final MemberGroupRepository memberGroupRepository;
 	private final TemplateAuthRepository templateAuthRepository;
+	private final WallInfoBlockRepository wallInfoBlockRepository;
+
 
 	public SpaceWallService(SpaceWallRepository spaceWallRepository, SNSBlockRepository snsBlockRepository,
 		FreeBlockRepository freeBlockRepository, TemplateBlockRepository templateBlockRepository,
-		MemberGroupRepository memberGroupRepository, TemplateAuthRepository templateAuthRepository) {
+		MemberGroupRepository memberGroupRepository, TemplateAuthRepository templateAuthRepository,
+		WallInfoBlockRepository wallInfoBlockRepository) {
 		this.spaceWallRepository = spaceWallRepository;
 		this.snsBlockRepository = snsBlockRepository;
 		this.freeBlockRepository = freeBlockRepository;
 		this.templateBlockRepository = templateBlockRepository;
 		this.memberGroupRepository = memberGroupRepository;
 		this.templateAuthRepository = templateAuthRepository;
+		this.wallInfoBlockRepository = wallInfoBlockRepository;
 	}
 
 	public SpaceWallResponse checkSpaceWallTemporary(Long memberId, Long addSpaceId) {
@@ -71,6 +78,10 @@ public class SpaceWallService {
 
 	@Transactional
 	public void save(final SpaceWallRequest spaceWallRequest) {
+
+		WallInfoBlockRequest wallInfoBlockRequest = spaceWallRequest.getData().getWallInfoBlock();
+		saveWallInfoBlock(wallInfoBlockRequest);
+
 		ObjectMapper mapper = new ObjectMapper();
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
@@ -124,5 +135,10 @@ public class SpaceWallService {
 				templateAuthRepository.save(templateAuth);
 			});
 		});
+	}
+
+	private void saveWallInfoBlock(WallInfoBlockRequest wallInfoBlockRequest) {
+		WallInfoBlock wallInfoBlock = WallInfoBlockRequest.toEntity(wallInfoBlockRequest);
+		wallInfoBlockRepository.save(wallInfoBlock);
 	}
 }
