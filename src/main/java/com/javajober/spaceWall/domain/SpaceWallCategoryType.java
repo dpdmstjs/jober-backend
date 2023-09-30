@@ -2,6 +2,9 @@ package com.javajober.spaceWall.domain;
 
 import java.util.Arrays;
 
+import com.javajober.core.error.exception.Exception404;
+import com.javajober.core.message.ErrorMessage;
+
 import lombok.Getter;
 
 @Getter
@@ -26,6 +29,6 @@ public enum SpaceWallCategoryType {
         return Arrays.stream(values())
             .filter(spaceWallCategoryType -> spaceWallCategoryType.getEngTitle().equals(type))
             .findAny()
-            .orElse(EMPTY);
+            .orElseThrow(() -> new Exception404(ErrorMessage.INVALID_SPACE_WALL_CATEGORY_TYPE));
     }
 }
