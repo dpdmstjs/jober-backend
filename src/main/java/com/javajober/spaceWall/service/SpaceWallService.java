@@ -114,7 +114,7 @@ public class SpaceWallService {
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-
+      
 			switch (blockType) {
 				case FREE_BLOCK:
 					List<FreeBlockSaveRequest> freeBlockRequests = mapper.convertValue(block.getSubData(),
