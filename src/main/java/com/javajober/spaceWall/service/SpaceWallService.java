@@ -14,12 +14,17 @@ import com.javajober.fileBlock.repository.FileBlockRepository;
 import com.javajober.freeBlock.domain.FreeBlock;
 import com.javajober.freeBlock.dto.request.FreeBlockSaveRequest;
 import com.javajober.freeBlock.repository.FreeBlockRepository;
+import com.javajober.listBlock.domain.ListBlock;
+import com.javajober.listBlock.dto.ListBlockSaveRequest;
+import com.javajober.listBlock.listBlockRepository.ListBlockRepository;
 import com.javajober.member.domain.MemberGroup;
 import com.javajober.snsBlock.domain.SNSBlock;
 import com.javajober.snsBlock.dto.SNSBlockRequest;
 import com.javajober.snsBlock.repository.SNSBlockRepository;
+import com.javajober.spaceWall.domain.BlockType;
 import com.javajober.spaceWall.domain.FlagType;
 import com.javajober.spaceWall.domain.SpaceWall;
+import com.javajober.spaceWall.domain.SpaceWallCategoryType;
 import com.javajober.spaceWall.dto.request.SpaceWallRequest;
 import com.javajober.spaceWall.dto.response.SpaceWallResponse;
 import com.javajober.spaceWall.repository.SpaceWallRepository;
@@ -56,11 +61,13 @@ public class SpaceWallService {
 	private final WallInfoBlockRepository wallInfoBlockRepository;
 	private final FileBlockRepository fileBlockRepository;
 	private final FileDirectoryConfig fileDirectoryConfig;
+	private final ListBlockRepository listBlockRepository;
 
 	public SpaceWallService(SpaceWallRepository spaceWallRepository, SNSBlockRepository snsBlockRepository,
 							FreeBlockRepository freeBlockRepository, TemplateBlockRepository templateBlockRepository,
-							MemberGroupRepository memberGroupRepository, TemplateAuthRepository templateAuthRepository, WallInfoBlockRepository wallInfoBlockRepository,
-							FileBlockRepository fileBlockRepository, FileDirectoryConfig fileDirectoryConfig) {
+							MemberGroupRepository memberGroupRepository, TemplateAuthRepository templateAuthRepository,
+							WallInfoBlockRepository wallInfoBlockRepository, FileBlockRepository fileBlockRepository,
+							FileDirectoryConfig fileDirectoryConfig, ListBlockRepository listBlockRepository) {
 
 		this.spaceWallRepository = spaceWallRepository;
 		this.snsBlockRepository = snsBlockRepository;
@@ -71,6 +78,7 @@ public class SpaceWallService {
 		this.wallInfoBlockRepository = wallInfoBlockRepository;
 		this.fileBlockRepository = fileBlockRepository;
 		this.fileDirectoryConfig = fileDirectoryConfig;
+		this.listBlockRepository = listBlockRepository;
 	}
 
 	public SpaceWallResponse checkSpaceWallTemporary(Long memberId, Long addSpaceId) {
@@ -102,8 +110,12 @@ public class SpaceWallService {
 		ObjectMapper mapper = new ObjectMapper();
 		AtomicInteger i = new AtomicInteger();
 
+		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
+
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
-			switch (block.getBlockType()) {
+			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
+      
+			switch (blockType) {
 				case FREE_BLOCK:
 					List<FreeBlockSaveRequest> freeBlockRequests = mapper.convertValue(block.getSubData(),
 							new TypeReference<List<FreeBlockSaveRequest>>() {
@@ -127,6 +139,11 @@ public class SpaceWallService {
 							new TypeReference<List<FileBlockSaveRequest>>() {
 							});
 					saveFileBlocks(fileBlockSaveRequests);
+				case LIST_BLOCK:
+					List<ListBlockSaveRequest> listBlockRequests = mapper.convertValue(block.getSubData(),
+						new TypeReference<List<ListBlockSaveRequest>>() {
+						});
+					saveListBlocks(listBlockRequests);
 			}
 		});
 	}
@@ -169,6 +186,13 @@ public class SpaceWallService {
 		subData.forEach(block -> {
 			FileBlock fileBlock = FileBlockSaveRequest.toEntity(block);
 			fileBlockRepository.save(fileBlock);
+		});
+	}
+
+	private void saveListBlocks(List<ListBlockSaveRequest> subData) {
+		subData.forEach(block -> {
+			ListBlock listBlock = ListBlockSaveRequest.toEntity(block);
+			listBlockRepository.save(listBlock);
 		});
 	}
 
