@@ -19,13 +19,13 @@ public class SubscriptionController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiUtils.ApiResponse<Object>> subscribe(@RequestBody SubscriptionSaveRequest request) {
+    public ResponseEntity<ApiUtils.ApiResponse<Object>> subscribe(@RequestBody final SubscriptionSaveRequest request) {
         subscriptionService.subscribe(request);
         return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.CREATE_SUCCESS, null));
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiUtils.ApiResponse<Object>> unsubscribe(@RequestBody SubscriptionSaveRequest request) {
+    public ResponseEntity<ApiUtils.ApiResponse<Object>> unsubscribe(@RequestBody final SubscriptionSaveRequest request) {
         subscriptionService.unsubscribe(request);
         return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.DELETE_SUCCESS, null));
     }

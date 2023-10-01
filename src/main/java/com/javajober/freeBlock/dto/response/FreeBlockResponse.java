@@ -22,7 +22,7 @@ public class FreeBlockResponse {
         this.freeContent = freeContent;
     }
 
-    public static FreeBlockResponse from(FreeBlock freeBlock) {
+    public static FreeBlockResponse from(final FreeBlock freeBlock) {
         return FreeBlockResponse.builder()
                 .freeId(freeBlock.getId())
                 .freeTitle(freeBlock.getFreeTitle())

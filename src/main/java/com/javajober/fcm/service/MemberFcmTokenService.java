@@ -15,12 +15,12 @@ public class MemberFcmTokenService {
     private final MemberFcmTokenRepository memberFcmTokenRepository;
     private final MemberRepository memberRepository;
 
-    public MemberFcmTokenService(MemberFcmTokenRepository memberFcmTokenRepository, MemberRepository memberRepository) {
+    public MemberFcmTokenService(final MemberFcmTokenRepository memberFcmTokenRepository, final MemberRepository memberRepository) {
         this.memberFcmTokenRepository = memberFcmTokenRepository;
         this.memberRepository = memberRepository;
     }
 
-    public void saveFcmToken(MemberFcmTokenSaveRequest request) {
+    public void saveFcmToken(final MemberFcmTokenSaveRequest request) {
         Member member = memberRepository.findMember(request.getMemberId());
         Optional<MemberFcmToken> existingTokenOpt = memberFcmTokenRepository.findByMemberAndDeviceId(member, request.getDeviceId());
 
@@ -32,7 +32,7 @@ public class MemberFcmTokenService {
         memberFcmTokenRepository.save(token);
     }
 
-    private void updateExistingToken(MemberFcmToken existingToken, String newFcmToken) {
+    private void updateExistingToken(final MemberFcmToken existingToken, String newFcmToken) {
         existingToken.updateFcmToken(newFcmToken);
         memberFcmTokenRepository.save(existingToken);
     }

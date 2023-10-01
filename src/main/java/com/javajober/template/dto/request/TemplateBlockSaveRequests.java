@@ -12,7 +12,7 @@ public class TemplateBlockSaveRequests<T> {
 
 	}
 
-	public TemplateBlockSaveRequests(List<T> subData) {
+	public TemplateBlockSaveRequests(final List<T> subData) {
 		this.subData = subData;
 	}
 }

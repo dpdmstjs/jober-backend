@@ -11,7 +11,7 @@ import com.javajober.templateBlock.domain.Template;
 
 public interface TemplateRepository extends Repository<Template, Long> {
 
-	List<Template> findBySpaceWallCategoryId(Long templateCategoryId);
+	List<Template> findBySpaceWallCategoryId(final Long templateCategoryId);
 
 	default List<Template> getBySpaceWallCategoryId(final Long templateCategoryId){
 		List<Template> templates = findBySpaceWallCategoryId(templateCategoryId);
@@ -23,7 +23,7 @@ public interface TemplateRepository extends Repository<Template, Long> {
 		return templates;
 	}
 
-	List<Template> findByTemplateTitleContaining(String keyword);
+	List<Template> findByTemplateTitleContaining(final String keyword);
 
 	default List<Template> getTemplateTitle(final String keyword){
 		List<Template> templates = findByTemplateTitleContaining(keyword);

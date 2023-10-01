@@ -6,6 +6,6 @@ import com.javajober.listBlock.domain.ListBlock;
 
 public interface ListBlockRepository extends Repository<ListBlock, Long> {
 
-	ListBlock save(ListBlock listBlock);
+	ListBlock save(final ListBlock listBlock);
 
 }

@@ -10,7 +10,7 @@ public class SpaceResponse {
     private final List<MemberGroupResponse> list;
 
     @Builder
-    public SpaceResponse(boolean hasWall, List<MemberGroupResponse> list) {
+    public SpaceResponse(final boolean hasWall, List<MemberGroupResponse> list) {
         this.hasWall = hasWall;
         this.list = list;
     }

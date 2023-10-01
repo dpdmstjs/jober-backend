@@ -22,7 +22,7 @@ public class FileBlockResponse {
         this.fileName = fileName;
     }
 
-    public static FileBlockResponse from(FileBlock fileBlock) {
+    public static FileBlockResponse from(final FileBlock fileBlock) {
         return FileBlockResponse.builder()
                 .fileTitle(fileBlock.getFileTitle())
                 .fileDescription(fileBlock.getFileDescription())

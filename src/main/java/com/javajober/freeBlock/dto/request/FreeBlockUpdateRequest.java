@@ -14,7 +14,7 @@ public class FreeBlockUpdateRequest {
     public FreeBlockUpdateRequest() {
     }
 
-    public static FreeBlock toEntity(FreeBlockUpdateRequest freeBlockUpdateRequest) {
+    public static FreeBlock toEntity(final FreeBlockUpdateRequest freeBlockUpdateRequest) {
         return FreeBlock.builder()
                 .freeTitle(freeBlockUpdateRequest.getFreeTitle())
                 .freeContent(freeBlockUpdateRequest.getFreeContent())

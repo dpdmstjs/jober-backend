@@ -12,9 +12,9 @@ import com.javajober.space.domain.SpaceType;
 
 public interface AddSpaceRepository extends Repository<AddSpace, Long> {
 
-	List<AddSpace> findByMemberIdAndSpaceType(Long memberId, SpaceType spaceType);
+	List<AddSpace> findByMemberIdAndSpaceType(final Long memberId, SpaceType spaceType);
 
-	Optional<AddSpace> findById(Long id);
+	Optional<AddSpace> findById(final Long id);
 
 
 	default AddSpace findAddSpace (final Long id) {

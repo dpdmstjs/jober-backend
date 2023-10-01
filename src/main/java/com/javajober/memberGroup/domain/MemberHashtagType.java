@@ -10,7 +10,7 @@ public enum MemberHashtagType {
 
     private final String description;
 
-    private MemberHashtagType(String description) {
+    MemberHashtagType(final String description) {
         this.description = description;
     }
 }

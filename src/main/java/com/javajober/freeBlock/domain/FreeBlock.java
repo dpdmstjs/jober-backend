@@ -48,7 +48,7 @@ public class FreeBlock {
         this.freeContent = freeContent;
     }
 
-    public void update(FreeBlock freeBlock) {
+    public void update(final FreeBlock freeBlock) {
         this.freeTitle = freeBlock.getFreeTitle();
         this.freeContent = freeBlock.getFreeContent();
     }

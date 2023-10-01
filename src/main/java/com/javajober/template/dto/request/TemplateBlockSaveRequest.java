@@ -20,7 +20,7 @@ public class TemplateBlockSaveRequest {
 	public TemplateBlockSaveRequest(){
 	}
 
-	public static TemplateBlock toEntity(TemplateBlockSaveRequest templateBlockSaveRequest){
+	public static TemplateBlock toEntity(final TemplateBlockSaveRequest templateBlockSaveRequest){
 		return TemplateBlock.builder()
 			.templateUUID(templateBlockSaveRequest.getTemplateUUID())
 			.templateTitle(templateBlockSaveRequest.getTemplateTitle())

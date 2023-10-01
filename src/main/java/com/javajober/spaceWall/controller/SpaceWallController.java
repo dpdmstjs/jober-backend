@@ -17,12 +17,12 @@ public class SpaceWallController {
 
     private final SpaceWallService spaceWallService;
 
-    public SpaceWallController(SpaceWallService spaceWallService) {
+    public SpaceWallController(final SpaceWallService spaceWallService) {
         this.spaceWallService = spaceWallService;
     }
 
     @GetMapping("/wall-temporary/storage/{memberId}/{addSpaceId}")
-    public ResponseEntity<ApiUtils.ApiResponse<SpaceWallResponse>> checkSpaceWallTemporary(@PathVariable Long memberId, @PathVariable Long addSpaceId) {
+    public ResponseEntity<ApiUtils.ApiResponse<SpaceWallResponse>> checkSpaceWallTemporary(@PathVariable final Long memberId, @PathVariable final Long addSpaceId) {
 
         SpaceWallResponse response = spaceWallService.checkSpaceWallTemporary(memberId, addSpaceId);
 

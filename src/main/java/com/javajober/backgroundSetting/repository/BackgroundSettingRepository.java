@@ -11,9 +11,9 @@ import com.javajober.backgroundSetting.domain.BackgroundSetting;
 public interface BackgroundSettingRepository extends Repository<BackgroundSetting, Long> {
 
 
-	BackgroundSetting save(BackgroundSetting backgroundSetting);
+	BackgroundSetting save(final BackgroundSetting backgroundSetting);
 
-	Optional<BackgroundSetting> findById(Long id);
+	Optional<BackgroundSetting> findById(final Long id);
 
 	default BackgroundSetting getById (final Long id) {
 		return findById(id)

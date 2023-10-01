@@ -27,12 +27,12 @@ public class TemplateBlockController {
 
 	private final TemplateBlockService templateBlockService;
 
-	public TemplateBlockController(TemplateBlockService templateBlockService) {
+	public TemplateBlockController(final TemplateBlockService templateBlockService) {
 		this.templateBlockService = templateBlockService;
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiUtils.ApiResponse> createTemplateBlock(@RequestBody TemplateBlockSaveRequests<TemplateBlockSaveRequest> templateBlockSaveRequests) {
+	public ResponseEntity<ApiUtils.ApiResponse> createTemplateBlock(@RequestBody final TemplateBlockSaveRequests<TemplateBlockSaveRequest> templateBlockSaveRequests) {
 
 		templateBlockService.save(templateBlockSaveRequests);
 

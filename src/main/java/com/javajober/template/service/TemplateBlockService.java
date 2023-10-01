@@ -27,7 +27,8 @@ public class TemplateBlockService {
 	private final TemplateAuthRepository templateAuthRepository;
 	private final TemplateBlockRepository templateBlockRepository;
 
-	public TemplateBlockService(MemberGroupRepository memberGroupRepository, TemplateAuthRepository templateAuthRepository, TemplateBlockRepository templateBlockRepository) {
+	public TemplateBlockService(
+		final MemberGroupRepository memberGroupRepository, final TemplateAuthRepository templateAuthRepository, final TemplateBlockRepository templateBlockRepository) {
 		this.memberGroupRepository = memberGroupRepository;
 		this.templateAuthRepository = templateAuthRepository;
 		this.templateBlockRepository = templateBlockRepository;

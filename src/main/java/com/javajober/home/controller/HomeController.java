@@ -23,7 +23,7 @@ public class HomeController {
 	}
 
 	@GetMapping("/{memberId}")
-	public ResponseEntity<ApiUtils.ApiResponse<HomeResponse>> getHome(@PathVariable Long memberId) {
+	public ResponseEntity<ApiUtils.ApiResponse<HomeResponse>> getHome(@PathVariable final Long memberId) {
 		HomeResponse responses = homeService.getHomes(memberId);
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.HOME_SUCCESS, responses));
 	}

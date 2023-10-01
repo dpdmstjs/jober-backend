@@ -6,5 +6,5 @@ import com.javajober.styleSetting.domain.StyleSetting;
 
 public interface StyleSettingRepository extends Repository<StyleSetting, Long> {
 
-	StyleSetting save(StyleSetting styleSetting);
+	StyleSetting save(final StyleSetting styleSetting);
 }

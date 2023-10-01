@@ -15,7 +15,7 @@ public class SubscriptionSaveRequest {
     public SubscriptionSaveRequest() {
     }
 
-    public static Subscription toEntity(SubscriptionSaveRequest request, Member subscriber, SpaceWall spaceWall) {
+    public static Subscription toEntity(final SubscriptionSaveRequest request, final Member subscriber, final SpaceWall spaceWall) {
         return new Subscription(subscriber, spaceWall);
     }
 }

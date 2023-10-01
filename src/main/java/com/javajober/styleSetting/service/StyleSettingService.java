@@ -20,9 +20,10 @@ public class StyleSettingService {
 	private final ThemeSettingRepository themeSettingRepository;
 
 
-	public StyleSettingService(StyleSettingRepository styleSettingRepository,
-		BackgroundSettingRepository backgroundSettingRepository, BlockSettingRepository blockSettingRepository,
-		ThemeSettingRepository themeSettingRepository) {
+	public StyleSettingService(
+		final StyleSettingRepository styleSettingRepository,
+		final BackgroundSettingRepository backgroundSettingRepository, final BlockSettingRepository blockSettingRepository,
+		final ThemeSettingRepository themeSettingRepository) {
 		this.styleSettingRepository = styleSettingRepository;
 		this.backgroundSettingRepository = backgroundSettingRepository;
 		this.blockSettingRepository = blockSettingRepository;
@@ -30,7 +31,7 @@ public class StyleSettingService {
 	}
 
 	@Transactional
-	public StyleSetting save(StyleSettingSaveRequest styleSettingSaveRequest) {
+	public StyleSetting save(final StyleSettingSaveRequest styleSettingSaveRequest) {
 		StyleSetting styleSetting = styleSettingSaveRequest.toEntity();
 
 		backgroundSettingRepository.save(styleSetting.getBackgroundSetting());

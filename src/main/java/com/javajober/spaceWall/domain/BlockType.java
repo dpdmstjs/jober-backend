@@ -20,12 +20,12 @@ public enum BlockType {
     private final String engTitle;
     private final String korTitle;
 
-    BlockType(String engTitle, String korTitle) {
+    BlockType(final String engTitle, final String korTitle) {
         this.engTitle = engTitle;
         this.korTitle = korTitle;
     }
 
-    public static BlockType findBlockTypeByString(String type) {
+    public static BlockType findBlockTypeByString(final String type) {
         return Arrays.stream(values())
             .filter(blockType -> blockType.getEngTitle().equals(type))
             .findAny()

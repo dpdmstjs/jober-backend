@@ -13,7 +13,7 @@ public class SNSBlockSaveRequests<T> {
 
 	}
 
-	public SNSBlockSaveRequests(List<T> subData) {
+	public SNSBlockSaveRequests(final List<T> subData) {
 		this.subData = subData;
 	}
 }

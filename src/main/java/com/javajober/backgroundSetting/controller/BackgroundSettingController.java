@@ -19,14 +19,14 @@ public class BackgroundSettingController {
 
 	private final BackgroundSettingService backgroundSettingService;
 
-	public BackgroundSettingController(BackgroundSettingService backgroundSettingService) {
+	public BackgroundSettingController(final BackgroundSettingService backgroundSettingService) {
 		this.backgroundSettingService = backgroundSettingService;
 	}
 
 	@PostMapping
 	public ResponseEntity<ApiUtils.ApiResponse> save(
 		@RequestPart(value = "backgroundRequest") final BackgroundSettingSaveRequest styleSetting,
-		@RequestPart(value = "styleImgURL", required = false) MultipartFile styleImgURL){
+		@RequestPart(value = "styleImgURL", required = false) final MultipartFile styleImgURL){
 
 		backgroundSettingService.save(styleSetting);
 

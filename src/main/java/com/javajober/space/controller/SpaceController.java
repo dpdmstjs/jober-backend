@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class SpaceController {
     private final SpaceService spaceService;
 
-    public SpaceController(SpaceService spaceService) {
+    public SpaceController(final SpaceService spaceService) {
         this.spaceService = spaceService;
     }
 
     @GetMapping("/{memberId}/{addSpaceId}")
-    public ResponseEntity<ApiUtils.ApiResponse<SpaceResponse>> getSpaceDetails(@PathVariable Long memberId, @PathVariable Long addSpaceId, @RequestParam SpaceType spaceType) {
+    public ResponseEntity<ApiUtils.ApiResponse<SpaceResponse>> getSpaceDetails(@PathVariable final Long memberId, @PathVariable final Long addSpaceId, @RequestParam final SpaceType spaceType) {
         SpaceResponse spaceResponse = spaceService.getSpaceDetails(memberId, addSpaceId);
 
         SuccessMessage successMessage;

@@ -14,7 +14,7 @@ public class MemberFcmTokenSaveRequest {
     public MemberFcmTokenSaveRequest() {
     }
 
-    public static MemberFcmToken toEntity(MemberFcmTokenSaveRequest request, Member member) {
+    public static MemberFcmToken toEntity(final MemberFcmTokenSaveRequest request, final Member member) {
         return MemberFcmToken.builder()
                 .member(member)
                 .fcmToken(request.getFcmToken())

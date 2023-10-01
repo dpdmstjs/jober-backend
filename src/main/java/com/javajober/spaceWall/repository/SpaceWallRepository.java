@@ -13,11 +13,11 @@ public interface SpaceWallRepository extends Repository<SpaceWall, Long> {
 
     @Query("SELECT s FROM SpaceWall s LEFT JOIN s.addSpace a LEFT JOIN s.member m " +
             "WHERE a.id = :addSpaceId AND m.id = :memberId")
-    List<SpaceWall> findSpaceWalls(@Param("memberId") Long memberId, @Param("addSpaceId") Long addSpaceId);
+    List<SpaceWall> findSpaceWalls(@Param("memberId") final Long memberId, @Param("addSpaceId") final Long addSpaceId);
 
-    boolean existsByAddSpaceId(Long addSpaceId);
+    boolean existsByAddSpaceId(final Long addSpaceId);
   
-    SpaceWall save(SpaceWall spaceWall);
+    SpaceWall save(final SpaceWall spaceWall);
 
     default SpaceWall getById(final Long memberId, final Long spaceWallId) {
         return findSpaceWalls(memberId, spaceWallId).stream()

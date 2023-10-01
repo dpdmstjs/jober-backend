@@ -52,7 +52,7 @@ public class FileBlock {
         this.fileName = fileName;
     }
 
-    public void update(FileBlock fileBlock) {
+    public void update(final FileBlock fileBlock) {
         this.fileTitle = fileBlock.getFileTitle();
         this.fileDescription = fileBlock.getFileDescription();
         this.fileName = fileBlock.getFileName();

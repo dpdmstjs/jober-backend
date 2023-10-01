@@ -11,13 +11,13 @@ import com.javajober.template.domain.TemplateBlock;
 
 public interface TemplateBlockRepository extends Repository<TemplateBlock, Long> {
 
-	TemplateBlock save(TemplateBlock templateBlock);
+	TemplateBlock save(final TemplateBlock templateBlock);
 
-	List<TemplateBlock> saveAll(Iterable<TemplateBlock> templateBlock);
+	List<TemplateBlock> saveAll(final Iterable<TemplateBlock> templateBlock);
 
-	List<TemplateBlock> findAllById(Iterable<Long> id);
+	List<TemplateBlock> findAllById(final Iterable<Long> id);
 
-	Optional<TemplateBlock> findById(Long id);
+	Optional<TemplateBlock> findById(final Long id);
 
 	default TemplateBlock getById(final Long id){
 		return findById(id)

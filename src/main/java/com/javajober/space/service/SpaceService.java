@@ -16,12 +16,12 @@ public class SpaceService {
     private final SpaceWallRepository spaceWallRepository;
     private final MemberGroupRepository memberGroupRepository;
 
-    public SpaceService(SpaceWallRepository spaceWallRepository, MemberGroupRepository memberGroupRepository) {
+    public SpaceService(final SpaceWallRepository spaceWallRepository, final MemberGroupRepository memberGroupRepository) {
         this.spaceWallRepository = spaceWallRepository;
         this.memberGroupRepository = memberGroupRepository;
     }
 
-    public SpaceResponse getSpaceDetails(Long memberId, Long addSpaceId) {
+    public SpaceResponse getSpaceDetails(final Long memberId, final Long addSpaceId) {
         boolean hasWall = spaceWallRepository.existsByAddSpaceId(addSpaceId);
 
         List<MemberGroup> memberGroups = memberGroupRepository.findByMemberIdAndAddSpaceId(memberId, addSpaceId);

@@ -22,7 +22,7 @@ public class SNSBlockService {
 
 	private final SNSBlockRepository snsBlockRepository;
 
-	public SNSBlockService(SNSBlockRepository snsBlockRepository) {
+	public SNSBlockService(final SNSBlockRepository snsBlockRepository) {
 		this.snsBlockRepository = snsBlockRepository;
 	}
 

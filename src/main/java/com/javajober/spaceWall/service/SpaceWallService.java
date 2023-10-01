@@ -84,13 +84,14 @@ public class SpaceWallService {
 	private final MemberRepository memberRepository;
 	private final AddSpaceRepository addSpaceRepository;
 
-	public SpaceWallService(SpaceWallRepository spaceWallRepository, SNSBlockRepository snsBlockRepository,
-							FreeBlockRepository freeBlockRepository, TemplateBlockRepository templateBlockRepository,
-							WallInfoBlockRepository wallInfoBlockRepository, FileBlockRepository fileBlockRepository,
-							FileDirectoryConfig fileDirectoryConfig, ListBlockRepository listBlockRepository,
-		StyleSettingRepository styleSettingRepository, BackgroundSettingRepository backgroundSettingRepository,
-		BlockSettingRepository blockSettingRepository, ThemeSettingRepository themeSettingRepository,
-		MemberRepository memberRepository, AddSpaceRepository addSpaceRepository) {
+	public SpaceWallService(
+		final SpaceWallRepository spaceWallRepository, final SNSBlockRepository snsBlockRepository,
+		final FreeBlockRepository freeBlockRepository, final TemplateBlockRepository templateBlockRepository,
+		final WallInfoBlockRepository wallInfoBlockRepository, final FileBlockRepository fileBlockRepository,
+		final FileDirectoryConfig fileDirectoryConfig, final ListBlockRepository listBlockRepository,
+		final StyleSettingRepository styleSettingRepository, final BackgroundSettingRepository backgroundSettingRepository,
+		final BlockSettingRepository blockSettingRepository, final ThemeSettingRepository themeSettingRepository,
+		final MemberRepository memberRepository, final AddSpaceRepository addSpaceRepository) {
 
 		this.spaceWallRepository = spaceWallRepository;
 		this.snsBlockRepository = snsBlockRepository;
@@ -108,7 +109,7 @@ public class SpaceWallService {
 		this.addSpaceRepository = addSpaceRepository;
 	}
 
-	public SpaceWallResponse checkSpaceWallTemporary(Long memberId, Long addSpaceId) {
+	public SpaceWallResponse checkSpaceWallTemporary(final Long memberId, final Long addSpaceId) {
 
 		List<SpaceWall> spaceWalls = spaceWallRepository.findSpaceWalls(memberId, addSpaceId);
 
@@ -129,7 +130,7 @@ public class SpaceWallService {
 	}
 
 	@Transactional
-	public void save(final SpaceWallSaveRequest spaceWallSaveRequest, FlagType flagType) {
+	public void save(final SpaceWallSaveRequest spaceWallSaveRequest, final FlagType flagType) {
 
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(
 			spaceWallSaveRequest.getData().getCategory());
@@ -201,13 +202,13 @@ public class SpaceWallService {
 		spaceWallRepository.save(spaceWall);
 	}
 
-	private Long saveWallInfoBlock(WallInfoBlockSaveRequest wallInfoBlockSaveRequest) {
+	private Long saveWallInfoBlock(final WallInfoBlockSaveRequest wallInfoBlockSaveRequest) {
 		WallInfoBlock wallInfoBlock = WallInfoBlockSaveRequest.toEntity(wallInfoBlockSaveRequest);
 
 		return wallInfoBlockRepository.save(wallInfoBlock).getId();
 	}
 
-	private List<Long> saveFreeBlocks(List<FreeBlockSaveRequest> subData) {
+	private List<Long> saveFreeBlocks(final List<FreeBlockSaveRequest> subData) {
 		List<Long> freeBlockIds = new ArrayList<>();
 		subData.forEach(block -> {
 			FreeBlock freeBlock = FreeBlockSaveRequest.toEntity(block);
@@ -216,7 +217,7 @@ public class SpaceWallService {
 		return freeBlockIds;
 	}
 
-	private List<Long> saveSnsBlocks(List<SNSBlockSaveRequest> subData) {
+	private List<Long> saveSnsBlocks(final List<SNSBlockSaveRequest> subData) {
 		List<Long> snsBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
@@ -226,7 +227,7 @@ public class SpaceWallService {
 		return snsBlockIds;
 	}
 
-	private List<Long> saveTemplateBlocks(List<TemplateBlockSaveRequest> subData){
+	private List<Long> saveTemplateBlocks(final List<TemplateBlockSaveRequest> subData){
 		List<Long> templateBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
@@ -236,7 +237,7 @@ public class SpaceWallService {
 		return templateBlockIds;
 	}
 
-	private List<Long> saveFileBlocks(List<FileBlockSaveRequest> subData) {
+	private List<Long> saveFileBlocks(final List<FileBlockSaveRequest> subData) {
 		List<Long> fileBlockIds = new ArrayList<>();
 		subData.forEach(block -> {
 			FileBlock fileBlock = FileBlockSaveRequest.toEntity(block);
@@ -245,7 +246,7 @@ public class SpaceWallService {
 		return fileBlockIds;
 	}
 
-	private List<Long> saveListBlocks(List<ListBlockSaveRequest> subData) {
+	private List<Long> saveListBlocks(final List<ListBlockSaveRequest> subData) {
 		List<Long> listBlockIds = new ArrayList<>();
 		subData.forEach(block -> {
 			ListBlock listBlock = ListBlockSaveRequest.toEntity(block);
@@ -254,7 +255,7 @@ public class SpaceWallService {
 		return listBlockIds;
 	}
 
-	private Long saveStyleSetting(StyleSettingSaveRequest saveRequest){
+	private Long saveStyleSetting(final StyleSettingSaveRequest saveRequest){
 		StyleSetting styleSetting =saveRequest.toEntity();
 
 		backgroundSettingRepository.save(styleSetting.getBackgroundSetting());
@@ -264,23 +265,23 @@ public class SpaceWallService {
 		return styleSettingRepository.save(styleSetting).getId();
 	}
 
-	private BackgroundSetting saveBackgroundSetting(BackgroundSettingSaveRequest saveRequest){
+	private BackgroundSetting saveBackgroundSetting(final BackgroundSettingSaveRequest saveRequest){
 		//String styleImg = uploadFile(file);
 		BackgroundSetting backgroundSetting = saveRequest.toEntity();
 		return backgroundSettingRepository.save(backgroundSetting);
 	}
 
-	private BlockSetting saveBlockSetting(BlockSettingSaveRequest saveRequest ){
+	private BlockSetting saveBlockSetting(final BlockSettingSaveRequest saveRequest ){
 		BlockSetting blockSetting = saveRequest.toEntity();
 		return blockSettingRepository.save(blockSetting);
 	}
 
-	private ThemeSetting saveThemeSetting(ThemeSettingSaveRequest saveRequest){
+	private ThemeSetting saveThemeSetting(final ThemeSettingSaveRequest saveRequest){
 		ThemeSetting themeSetting = saveRequest.toEntity();
 		return themeSettingRepository.save(themeSetting);
 	}
 
-	private void addBlockInfoToArray(ArrayNode blockInfoArray, ObjectMapper jsonMapper, BlockType blockType, Long position, Long blockId, BlockSaveRequest block) {
+	private void addBlockInfoToArray(final ArrayNode blockInfoArray, final ObjectMapper jsonMapper, final BlockType blockType, final Long position, final Long blockId, final BlockSaveRequest block) {
 		String currentBlockTypeTitle = blockType.getEngTitle();
 		String blockUUID = block.getBlockUUID();
 
@@ -294,7 +295,7 @@ public class SpaceWallService {
 		blockInfoArray.add(blockInfoObject);
 	}
 
-	private void addBlockToJsonArray(ArrayNode jsonArray, ObjectMapper mapper, Long position, String blockType, Long blockId) {
+	private void addBlockToJsonArray(final ArrayNode jsonArray, final ObjectMapper mapper, final Long position, final String blockType, final Long blockId) {
 		ObjectNode blockInfoObject = mapper.createObjectNode();
 
 		blockInfoObject.put("position", position);
@@ -305,7 +306,7 @@ public class SpaceWallService {
 		jsonArray.add(blockInfoObject);
 	}
 
-	private String uploadFile(MultipartFile file) {
+	private String uploadFile(final MultipartFile file) {
 
 		if (file.isEmpty()) {   // 파일 첨부를 안했을 경우
 			return null;
@@ -330,7 +331,7 @@ public class SpaceWallService {
 		return fileDirectoryConfig.getDirectoryPath();
 	}
 
-	private void validationPdfMultipartFile(List<MultipartFile> files) {
+	private void validationPdfMultipartFile(final List<MultipartFile> files) {
 
 		for (MultipartFile file : files) {
 			if (file == null || file.isEmpty()) {

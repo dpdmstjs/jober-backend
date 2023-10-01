@@ -18,7 +18,7 @@ public class BlockSettingController {
 
 	private final BlockSettingService blockSettingService;
 
-	public BlockSettingController(BlockSettingService blockSettingService) {
+	public BlockSettingController(final BlockSettingService blockSettingService) {
 		this.blockSettingService = blockSettingService;
 	}
 

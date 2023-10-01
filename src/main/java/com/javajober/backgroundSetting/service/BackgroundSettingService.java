@@ -15,8 +15,8 @@ public class BackgroundSettingService {
 
 	private final FileDirectoryConfig fileDirectoryConfig;
 
-	public BackgroundSettingService(BackgroundSettingRepository backgroundSettingRepository,
-		FileDirectoryConfig fileDirectoryConfig) {
+	public BackgroundSettingService(final BackgroundSettingRepository backgroundSettingRepository,
+		final FileDirectoryConfig fileDirectoryConfig) {
 		this.backgroundSettingRepository = backgroundSettingRepository;
 		this.fileDirectoryConfig = fileDirectoryConfig;
 	}

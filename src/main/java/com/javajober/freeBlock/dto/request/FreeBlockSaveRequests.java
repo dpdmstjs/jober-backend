@@ -12,7 +12,7 @@ public class FreeBlockSaveRequests {
     private FreeBlockSaveRequests() {
     }
 
-    public FreeBlockSaveRequests(List<FreeBlockSaveRequest> subData) {
+    public FreeBlockSaveRequests(final List<FreeBlockSaveRequest> subData) {
         this.subData = subData;
     }
 }

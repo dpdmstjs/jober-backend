@@ -18,12 +18,12 @@ public class StyleSettingController {
 
 	private final StyleSettingService styleSettingService;
 
-	public StyleSettingController(StyleSettingService styleSettingService) {
+	public StyleSettingController(final StyleSettingService styleSettingService) {
 		this.styleSettingService = styleSettingService;
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiUtils.ApiResponse> save(@RequestBody StyleSettingSaveRequest styleSettingSaveRequest) {
+	public ResponseEntity<ApiUtils.ApiResponse> save(@RequestBody final StyleSettingSaveRequest styleSettingSaveRequest) {
 		styleSettingService.save(styleSettingSaveRequest);
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.CREATED, SuccessMessage.CREATE_SUCCESS, null));
 	}

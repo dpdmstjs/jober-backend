@@ -18,7 +18,7 @@ public class ThemeSettingController {
 
 	private final ThemeSettingService themeSettingService;
 
-	public ThemeSettingController(ThemeSettingService themeSettingService) {
+	public ThemeSettingController(final ThemeSettingService themeSettingService) {
 		this.themeSettingService = themeSettingService;
 	}
 

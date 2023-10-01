@@ -21,7 +21,7 @@ public class TemplateBlockResponse {
 	}
 
 	@Builder
-	public TemplateBlockResponse(String templateUUID, String templateTitle, String templateDescription,List<Long> hasAccessTemplateAuth,
+	public TemplateBlockResponse(final String templateUUID, final String templateTitle, final String templateDescription, final List<Long> hasAccessTemplateAuth,
 		List<Long> hasDenyTemplateAuth){
 		this.templateUUID=templateUUID;
 		this.templateTitle=templateTitle;
@@ -30,7 +30,7 @@ public class TemplateBlockResponse {
 		this.hasDenyTemplateAuth = hasDenyTemplateAuth;
 	}
 
-	public static TemplateBlockResponse from(TemplateBlock templateBlock,List<Long> hasAccessTemplateAuth,
+	public static TemplateBlockResponse from(final TemplateBlock templateBlock, final List<Long> hasAccessTemplateAuth,
 		List<Long> hasDenyTemplateAuth){
 		return TemplateBlockResponse.builder()
 			.templateUUID(templateBlock.getTemplateUUID())

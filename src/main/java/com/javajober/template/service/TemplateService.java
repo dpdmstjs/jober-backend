@@ -36,9 +36,10 @@ public class TemplateService {
 	private final TemplateRepository templateRepository;
 	private final TemplateBlockRepository templateBlockRepository;
 
-	public TemplateService(MemberGroupRepository memberGroupRepository, AddSpaceRepository addSpaceRepository,
-		TemplateAuthRepository templateAuthRepository, SpaceWallCategoryRepository spaceWallCategoryRepository,
-		TemplateRepository templateRepository, TemplateBlockRepository templateBlockRepository) {
+	public TemplateService(
+		final MemberGroupRepository memberGroupRepository, final AddSpaceRepository addSpaceRepository,
+		final TemplateAuthRepository templateAuthRepository, final SpaceWallCategoryRepository spaceWallCategoryRepository,
+		final TemplateRepository templateRepository, final TemplateBlockRepository templateBlockRepository) {
 		this.memberGroupRepository = memberGroupRepository;
 		this.addSpaceRepository = addSpaceRepository;
 		this.templateAuthRepository = templateAuthRepository;
@@ -49,7 +50,7 @@ public class TemplateService {
 
 
 	@Transactional
-	public MemberAuthResponse getTemplateAuthList(SpaceType spaceType, Long memberId, Long templateBlockID) {
+	public MemberAuthResponse getTemplateAuthList(final SpaceType spaceType, final Long memberId, final Long templateBlockID) {
 
 
 		AddSpace addSpace = addSpaceRepository.getBySpaceTypeAndId(spaceType, memberId);
@@ -78,7 +79,7 @@ public class TemplateService {
 	}
 
 	@Transactional
-	public TemplateResponse getTemplateRecommend(SpaceWallCategoryType spaceWallCategoryType) {
+	public TemplateResponse getTemplateRecommend(final SpaceWallCategoryType spaceWallCategoryType) {
 
 		SpaceWallCategory spaceWallCategory = spaceWallCategoryRepository.getBySpaceWallCategory(spaceWallCategoryType);
 
@@ -96,7 +97,7 @@ public class TemplateService {
 	}
 
 	@Transactional
-	public TemplateResponse getSearchTemplatesByTitle(String keyword) {
+	public TemplateResponse getSearchTemplatesByTitle(final String keyword) {
 
 		List<Template> templates = templateRepository.getTemplateTitle(keyword);
 

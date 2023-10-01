@@ -10,13 +10,13 @@ import com.javajober.core.message.ErrorMessage;
 import com.javajober.snsBlock.domain.SNSBlock;
 
 public interface SNSBlockRepository extends Repository<SNSBlock, Long> {
-	SNSBlock save(SNSBlock snsBlock);
+	SNSBlock save(final SNSBlock snsBlock);
 
-	List<SNSBlock> saveAll(Iterable<SNSBlock> snsBlock);
+	List<SNSBlock> saveAll(final Iterable<SNSBlock> snsBlock);
 
-	List<SNSBlock> findAllById(Iterable<Long> id);
+	List<SNSBlock> findAllById(final Iterable<Long> id);
 
-	Optional<SNSBlock> findById(Long id);
+	Optional<SNSBlock> findById(final Long id);
 
 	default SNSBlock findSNSBlock(final Long id) {
 		return findById(id)
