@@ -24,8 +24,14 @@ import com.javajober.listBlock.listBlockRepository.ListBlockRepository;
 import com.javajober.member.domain.Member;
 import com.javajober.member.domain.MemberGroup;
 import com.javajober.member.repository.MemberRepository;
+import com.javajober.setting.domain.BackgroundSetting;
+import com.javajober.setting.domain.BlockSetting;
 import com.javajober.setting.domain.StyleSetting;
+import com.javajober.setting.domain.ThemeSetting;
+import com.javajober.setting.dto.BackgroundSettingSaveRequest;
+import com.javajober.setting.dto.BlockSettingSaveRequest;
 import com.javajober.setting.dto.StyleSettingSaveRequest;
+import com.javajober.setting.dto.ThemeSettingSaveRequest;
 import com.javajober.setting.repository.BackgroundSettingRepository;
 import com.javajober.setting.repository.BlockSettingRepository;
 import com.javajober.setting.repository.StyleSettingRepository;
@@ -212,6 +218,22 @@ public class SpaceWallService {
 		blockSettingRepository.save(styleSetting.getBlockSetting());
 		themeSettingRepository.save(styleSetting.getThemeSetting());
 		styleSettingRepository.save(styleSetting);
+	}
+
+	private BackgroundSetting saveBackgroundSetting(BackgroundSettingSaveRequest saveRequest){
+		//String styleImg = uploadFile(file);
+		BackgroundSetting backgroundSetting = saveRequest.toEntity();
+		return backgroundSettingRepository.save(backgroundSetting);
+	}
+
+	private BlockSetting saveBlockSetting(BlockSettingSaveRequest saveRequest ){
+		BlockSetting blockSetting = saveRequest.toEntity();
+		return blockSettingRepository.save(blockSetting);
+	}
+
+	private ThemeSetting saveThemeSetting(ThemeSettingSaveRequest saveRequest){
+		ThemeSetting themeSetting = saveRequest.toEntity();
+		return themeSettingRepository.save(themeSetting);
 	}
 
 	private void saveSnsBlocks(List<SNSBlockRequest> subData) {
