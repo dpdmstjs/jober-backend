@@ -153,7 +153,7 @@ public class SpaceWallService {
 		WallInfoBlockRequest wallInfoBlockRequest = spaceWallRequest.getData().getWallInfoBlock();
 		Long wallInfoBlock = saveWallInfoBlock(wallInfoBlockRequest);
 		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
-		int blockStartPosition = 1;
+		Long blockStartPosition = 1L;
 		addBlockToJsonArray(blockInfoArray, jsonMapper, blockStartPosition, wallInfoBlockType, wallInfoBlock);
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
@@ -197,16 +197,16 @@ public class SpaceWallService {
 			}
 		});
 
+		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
+		Long styleSetting = saveStyleSetting(styleSettingSaveRequest);
+		String styleSettingString = "styleSetting";
+		Long stylePosition = blocksPositionCounter.getAndIncrement();
+		addBlockToJsonArray(blockInfoArray, jsonMapper, stylePosition, styleSettingString, styleSetting);
+
 		String blockInfoArrayAsString = blockInfoArray.toString();
 		String shareURL = spaceWallRequest.getData().getShareURL();
 		SpaceWall spaceWall = SpaceWallRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
 		spaceWallRepository.save(spaceWall);
-
-		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
-		Long styleSetting = saveStyleSetting(styleSettingSaveRequest);
-		String styleSettingString = "styleSetting";
-		int stylePosition = 1;
-		addBlockToJsonArray(blockInfoArray, jsonMapper, stylePosition, styleSettingString, styleSetting);
 	}
 
 	private Long saveWallInfoBlock(WallInfoBlockRequest wallInfoBlockRequest) {
@@ -309,7 +309,7 @@ public class SpaceWallService {
 		blockInfoArray.add(blockInfoObject);
 	}
 
-	private void addBlockToJsonArray(ArrayNode jsonArray, ObjectMapper mapper, int position, String blockType, Long blockId) {
+	private void addBlockToJsonArray(ArrayNode jsonArray, ObjectMapper mapper, Long position, String blockType, Long blockId) {
 		ObjectNode blockInfoObject = mapper.createObjectNode();
 
 		blockInfoObject.put("position", position);
