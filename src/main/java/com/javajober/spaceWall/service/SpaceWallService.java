@@ -239,14 +239,7 @@ public class SpaceWallService {
 
 		subData.forEach(block -> {
 			TemplateBlock templateBlock = TemplateBlockRequest.toEntity(block);
-			templateBlockRepository.save(templateBlock);
-
-			block.getAllAuthIds().forEach(authId -> {
-				MemberGroup memberGroup = memberGroupRepository.getById(authId);
-				Boolean hasAccess = block.getHasAccessTemplateAuth().contains(authId);
-				TemplateAuth templateAuth = new TemplateAuth(memberGroup, hasAccess, templateBlock);
-				templateBlockIds.add(templateAuthRepository.save(templateAuth).getId());
-			});
+			templateBlockIds.add(templateBlockRepository.save(templateBlock).getId());
 		});
 		return templateBlockIds;
 	}
