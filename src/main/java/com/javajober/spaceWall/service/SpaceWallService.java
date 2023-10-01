@@ -222,7 +222,9 @@ public class SpaceWallService {
 		return snsIds;
 	}
 
-	private void saveTemplateBlock(List<TemplateBlockRequest> subData){
+	private List<Long> saveTemplateBlock(List<TemplateBlockRequest> subData){
+		List<Long> templateIds = new ArrayList<>();
+
 		subData.forEach(block -> {
 			TemplateBlock templateBlock = TemplateBlockRequest.toEntity(block);
 			templateBlockRepository.save(templateBlock);
@@ -231,9 +233,10 @@ public class SpaceWallService {
 				MemberGroup memberGroup = memberGroupRepository.getById(authId);
 				Boolean hasAccess = block.getHasAccessTemplateAuth().contains(authId);
 				TemplateAuth templateAuth = new TemplateAuth(memberGroup, hasAccess, templateBlock);
-				templateAuthRepository.save(templateAuth);
+				templateIds.add(templateAuthRepository.save(templateAuth).getId());
 			});
 		});
+		return templateIds;
 	}
 
 	private List<Long> saveFileBlocks(List<FileBlockSaveRequest> subData) {
