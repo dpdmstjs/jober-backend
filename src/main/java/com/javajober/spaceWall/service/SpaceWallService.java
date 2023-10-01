@@ -245,11 +245,13 @@ public class SpaceWallService {
 		return fileIds;
 	}
 
-	private void saveListBlocks(List<ListBlockSaveRequest> subData) {
+	private List<Long> saveListBlocks(List<ListBlockSaveRequest> subData) {
+		List<Long> listIds = new ArrayList<>();
 		subData.forEach(block -> {
 			ListBlock listBlock = ListBlockSaveRequest.toEntity(block);
-			listBlockRepository.save(listBlock);
+			listIds.add(listBlockRepository.save(listBlock).getId());
 		});
+		return listIds;
 	}
 
 	private void saveStyleSetting(StyleSettingSaveRequest saveRequest){
