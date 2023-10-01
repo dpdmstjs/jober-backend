@@ -212,30 +212,6 @@ public class SpaceWallService {
 		return freeIds;
 	}
 
-	private void saveStyleSetting(StyleSettingSaveRequest saveRequest){
-		StyleSetting styleSetting =saveRequest.toEntity();
-		backgroundSettingRepository.save(styleSetting.getBackgroundSetting());
-		blockSettingRepository.save(styleSetting.getBlockSetting());
-		themeSettingRepository.save(styleSetting.getThemeSetting());
-		styleSettingRepository.save(styleSetting);
-	}
-
-	private BackgroundSetting saveBackgroundSetting(BackgroundSettingSaveRequest saveRequest){
-		//String styleImg = uploadFile(file);
-		BackgroundSetting backgroundSetting = saveRequest.toEntity();
-		return backgroundSettingRepository.save(backgroundSetting);
-	}
-
-	private BlockSetting saveBlockSetting(BlockSettingSaveRequest saveRequest ){
-		BlockSetting blockSetting = saveRequest.toEntity();
-		return blockSettingRepository.save(blockSetting);
-	}
-
-	private ThemeSetting saveThemeSetting(ThemeSettingSaveRequest saveRequest){
-		ThemeSetting themeSetting = saveRequest.toEntity();
-		return themeSettingRepository.save(themeSetting);
-	}
-
 	private void saveSnsBlocks(List<SNSBlockRequest> subData) {
 		subData.forEach(block -> {
 			SNSBlock snsBlock = SNSBlockRequest.toEntity(block);
@@ -269,6 +245,30 @@ public class SpaceWallService {
 			ListBlock listBlock = ListBlockSaveRequest.toEntity(block);
 			listBlockRepository.save(listBlock);
 		});
+	}
+
+	private void saveStyleSetting(StyleSettingSaveRequest saveRequest){
+		StyleSetting styleSetting =saveRequest.toEntity();
+		backgroundSettingRepository.save(styleSetting.getBackgroundSetting());
+		blockSettingRepository.save(styleSetting.getBlockSetting());
+		themeSettingRepository.save(styleSetting.getThemeSetting());
+		styleSettingRepository.save(styleSetting);
+	}
+
+	private BackgroundSetting saveBackgroundSetting(BackgroundSettingSaveRequest saveRequest){
+		//String styleImg = uploadFile(file);
+		BackgroundSetting backgroundSetting = saveRequest.toEntity();
+		return backgroundSettingRepository.save(backgroundSetting);
+	}
+
+	private BlockSetting saveBlockSetting(BlockSettingSaveRequest saveRequest ){
+		BlockSetting blockSetting = saveRequest.toEntity();
+		return blockSettingRepository.save(blockSetting);
+	}
+
+	private ThemeSetting saveThemeSetting(ThemeSettingSaveRequest saveRequest){
+		ThemeSetting themeSetting = saveRequest.toEntity();
+		return themeSettingRepository.save(themeSetting);
 	}
 
 	private void addBlockInfoToArray(ArrayNode blockInfoArray, BlockType blockType, Long position, Long blockId, BlockRequest block) {
