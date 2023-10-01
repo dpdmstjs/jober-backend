@@ -212,11 +212,14 @@ public class SpaceWallService {
 		return freeIds;
 	}
 
-	private void saveSnsBlocks(List<SNSBlockRequest> subData) {
+	private List<Long> saveSnsBlocks(List<SNSBlockRequest> subData) {
+		List<Long> snsIds = new ArrayList<>();
+
 		subData.forEach(block -> {
 			SNSBlock snsBlock = SNSBlockRequest.toEntity(block);
-			snsBlockRepository.save(snsBlock);
+			snsIds.add(snsBlockRepository.save(snsBlock).getId());
 		});
+		return snsIds;
 	}
 
 	private void saveTemplateBlock(List<TemplateBlockRequest> subData){
@@ -233,11 +236,13 @@ public class SpaceWallService {
 		});
 	}
 
-	private void saveFileBlocks(List<FileBlockSaveRequest> subData) {
+	private List<Long> saveFileBlocks(List<FileBlockSaveRequest> subData) {
+		List<Long> fileIds = new ArrayList<>();
 		subData.forEach(block -> {
 			FileBlock fileBlock = FileBlockSaveRequest.toEntity(block);
-			fileBlockRepository.save(fileBlock);
+			fileIds.add(fileBlockRepository.save(fileBlock).getId());
 		});
+		return fileIds;
 	}
 
 	private void saveListBlocks(List<ListBlockSaveRequest> subData) {
