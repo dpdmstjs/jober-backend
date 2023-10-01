@@ -169,25 +169,29 @@ public class SpaceWallService {
 					List<SNSBlockRequest> snsBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<SNSBlockRequest>>() {
 							});
-					saveSnsBlocks(snsBlockRequests);
+					List<Long> snsBlockIds = saveSnsBlocks(snsBlockRequests);
+					snsBlockIds.forEach(snsBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, snsBlockId, block));
 					break;
 				case TEMPLATE_BLOCK:
 					List<TemplateBlockRequest> templateBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<TemplateBlockRequest>>() {
 							});
-					saveTemplateBlock(templateBlockRequests);
+					List<Long> templateBlockIds = saveTemplateBlocks(templateBlockRequests);
+					templateBlockIds.forEach(templateBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, templateBlockId, block));
 					break;
 				case FILE_BLOCK:
 					List<FileBlockSaveRequest> fileBlockSaveRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<FileBlockSaveRequest>>() {
 							});
-					saveFileBlocks(fileBlockSaveRequests);
+					List<Long> fileBlockIds = saveFileBlocks(fileBlockSaveRequests);
+					fileBlockIds.forEach(templateBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, templateBlockId, block));
 					break;
 				case LIST_BLOCK:
 					List<ListBlockSaveRequest> listBlockRequests = jsonMapper.convertValue(block.getSubData(),
 						new TypeReference<List<ListBlockSaveRequest>>() {
 						});
-					saveListBlocks(listBlockRequests);
+					List<Long> listBlockIds = saveListBlocks(listBlockRequests);
+					listBlockIds.forEach(listBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, listBlockId, block));
 			}
 		});
 
@@ -222,7 +226,7 @@ public class SpaceWallService {
 		return snsBlockIds;
 	}
 
-	private List<Long> saveTemplateBlock(List<TemplateBlockRequest> subData){
+	private List<Long> saveTemplateBlocks(List<TemplateBlockRequest> subData){
 		List<Long> templateBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
