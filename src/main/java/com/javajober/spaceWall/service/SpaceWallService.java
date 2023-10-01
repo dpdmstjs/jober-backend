@@ -24,14 +24,8 @@ import com.javajober.listBlock.listBlockRepository.ListBlockRepository;
 import com.javajober.member.domain.Member;
 import com.javajober.member.domain.MemberGroup;
 import com.javajober.member.repository.MemberRepository;
-import com.javajober.setting.domain.BackgroundSetting;
-import com.javajober.setting.domain.BlockSetting;
 import com.javajober.setting.domain.StyleSetting;
-import com.javajober.setting.domain.ThemeSetting;
-import com.javajober.setting.dto.BackgroundSettingSaveRequest;
-import com.javajober.setting.dto.BlockSettingSaveRequest;
 import com.javajober.setting.dto.StyleSettingSaveRequest;
-import com.javajober.setting.dto.ThemeSettingSaveRequest;
 import com.javajober.setting.repository.BackgroundSettingRepository;
 import com.javajober.setting.repository.BlockSettingRepository;
 import com.javajober.setting.repository.StyleSettingRepository;
@@ -43,6 +37,7 @@ import com.javajober.spaceWall.domain.BlockType;
 import com.javajober.spaceWall.domain.FlagType;
 import com.javajober.spaceWall.domain.SpaceWall;
 import com.javajober.spaceWall.domain.SpaceWallCategoryType;
+import com.javajober.spaceWall.dto.request.BlockRequest;
 import com.javajober.spaceWall.dto.request.SpaceWallRequest;
 import com.javajober.spaceWall.dto.response.SpaceWallResponse;
 import com.javajober.spaceWall.repository.SpaceWallRepository;
@@ -56,8 +51,6 @@ import com.javajober.wallInfoBlock.domain.WallInfoBlock;
 import com.javajober.wallInfoBlock.dto.request.WallInfoBlockRequest;
 import com.javajober.wallInfoBlock.repository.WallInfoBlockRepository;
 
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -146,36 +139,25 @@ public class SpaceWallService {
 		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
 		saveStyleSetting(styleSettingSaveRequest);
 
-
-		AtomicInteger i = new AtomicInteger();
-
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
-
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getAddSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
 
-		AtomicInteger blockPositionCounter = new AtomicInteger(2);
+		AtomicInteger blockPositionCounter = new AtomicInteger();
 		ObjectMapper jsonMapper = new ObjectMapper();
 		ArrayNode blockInfoArray = jsonMapper.createArrayNode();
+		AtomicInteger i = new AtomicInteger();
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-			int position = blockPositionCounter.getAndIncrement();
+			Long position = (long)blockPositionCounter.getAndIncrement();
 			switch (blockType) {
 				case FREE_BLOCK:
 					List<FreeBlockSaveRequest> freeBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<FreeBlockSaveRequest>>() {
 							});
 					List<Long> freeIds = saveFreeBlocks(freeBlockRequests);
-					freeIds.forEach(freeId -> {
-						ObjectNode blockInfoObject = jsonMapper.createObjectNode();
-						blockInfoObject.put("position", position);
-						blockInfoObject.put("block_type", blockType.getEngTitle());
-						blockInfoObject.put("block_id", freeId);
-						blockInfoObject.put("block_UUID", block.getBlockUUID());
-						blockInfoArray.add(blockInfoObject);
-
-					});
+					freeIds.forEach(freeId -> addBlockInfoToArray(blockInfoArray, blockType, position, freeId, block));
 					break;
 				case SNS_BLOCK:
 					List<SNSBlockRequest> snsBlockRequests = jsonMapper.convertValue(block.getSubData(),
@@ -205,7 +187,7 @@ public class SpaceWallService {
 
 		String blockInfoArrayAsString = blockInfoArray.toString();
 		String shareURL = spaceWallRequest.getData().getShareURL();
-		SpaceWall spaceWall = SpaceWallRequest.toEntity(SpaceWallCategoryType.CAREER, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
+		SpaceWall spaceWall = SpaceWallRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
 		spaceWallRepository.save(spaceWall);
 	}
 
@@ -230,22 +212,6 @@ public class SpaceWallService {
 		blockSettingRepository.save(styleSetting.getBlockSetting());
 		themeSettingRepository.save(styleSetting.getThemeSetting());
 		styleSettingRepository.save(styleSetting);
-	}
-
-	private BackgroundSetting saveBackgroundSetting(BackgroundSettingSaveRequest saveRequest){
-		//String styleImg = uploadFile(file);
-		BackgroundSetting backgroundSetting = saveRequest.toEntity();
-		return backgroundSettingRepository.save(backgroundSetting);
-	}
-
-	private BlockSetting saveBlockSetting(BlockSettingSaveRequest saveRequest ){
-		BlockSetting blockSetting = saveRequest.toEntity();
-		return blockSettingRepository.save(blockSetting);
-	}
-
-	private ThemeSetting saveThemeSetting(ThemeSettingSaveRequest saveRequest){
-		ThemeSetting themeSetting = saveRequest.toEntity();
-		return themeSettingRepository.save(themeSetting);
 	}
 
 	private void saveSnsBlocks(List<SNSBlockRequest> subData) {
@@ -283,6 +249,18 @@ public class SpaceWallService {
 		});
 	}
 
+	private void addBlockInfoToArray(ArrayNode blockInfoArray, BlockType blockType, Long position, Long blockId, BlockRequest block) {
+		ObjectMapper jsonMapper = new ObjectMapper();
+		String currentBlockTypeTitle = blockType.getEngTitle();
+		String blockUUID = block.getBlockUUID();
+
+		ObjectNode blockInfoObject = jsonMapper.createObjectNode();
+		blockInfoObject.put("position", position);
+		blockInfoObject.put("block_type", currentBlockTypeTitle);
+		blockInfoObject.put("block_id", blockId);
+		blockInfoObject.put("block_UUID", blockUUID);
+		blockInfoArray.add(blockInfoObject);
+	}
 	private String uploadFile(MultipartFile file) {
 
 		if (file.isEmpty()) {   // 파일 첨부를 안했을 경우
