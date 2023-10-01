@@ -68,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class SpaceWallService {
@@ -149,14 +150,14 @@ public class SpaceWallService {
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getAddSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
 
-		AtomicInteger blockPositionCounter = new AtomicInteger();
+		AtomicLong blockPositionCounter = new AtomicLong();
 		ObjectMapper jsonMapper = new ObjectMapper();
 		ArrayNode blockInfoArray = jsonMapper.createArrayNode();
 		AtomicInteger i = new AtomicInteger();
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-			Long position = (long)blockPositionCounter.getAndIncrement();
+			Long position = blockPositionCounter.getAndIncrement();
 			switch (blockType) {
 				case FREE_BLOCK:
 					List<FreeBlockSaveRequest> freeBlockRequests = jsonMapper.convertValue(block.getSubData(),
