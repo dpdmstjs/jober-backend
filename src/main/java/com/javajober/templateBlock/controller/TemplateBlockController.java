@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.javajober.core.message.SuccessMessage;
 import com.javajober.core.util.ApiUtils;
 import com.javajober.template.dto.request.TemplateBlockDeleteRequest;
-import com.javajober.template.dto.request.TemplateBlockRequest;
-import com.javajober.template.dto.request.TemplateBlockRequests;
+import com.javajober.template.dto.request.TemplateBlockSaveRequest;
+import com.javajober.template.dto.request.TemplateBlockSaveRequests;
 import com.javajober.template.dto.response.TemplateBlockResponses;
 import com.javajober.template.dto.request.TemplateBlockUpdateRequest;
 import com.javajober.template.service.TemplateBlockService;
@@ -32,9 +32,9 @@ public class TemplateBlockController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiUtils.ApiResponse> createTemplateBlock(@RequestBody TemplateBlockRequests<TemplateBlockRequest> templateBlockRequests) {
+	public ResponseEntity<ApiUtils.ApiResponse> createTemplateBlock(@RequestBody TemplateBlockSaveRequests<TemplateBlockSaveRequest> templateBlockSaveRequests) {
 
-		templateBlockService.save(templateBlockRequests);
+		templateBlockService.save(templateBlockSaveRequests);
 
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.CREATED, SuccessMessage.TEMPLATE_BLOCK_SAVE_SUCCESS, null));
 	}
@@ -48,9 +48,9 @@ public class TemplateBlockController {
 	}
 
 	@PutMapping
-	public ResponseEntity<ApiUtils.ApiResponse> updateTemplateBlock(@RequestBody final TemplateBlockRequests<TemplateBlockUpdateRequest> templateBlockRequests){
+	public ResponseEntity<ApiUtils.ApiResponse> updateTemplateBlock(@RequestBody final TemplateBlockSaveRequests<TemplateBlockUpdateRequest> templateBlockSaveRequests){
 
-		templateBlockService.update(templateBlockRequests);
+		templateBlockService.update(templateBlockSaveRequests);
 
 		return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.TEMPLATE_BLOCK_UPDATE_SUCCESS, null));
 	}

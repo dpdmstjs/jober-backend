@@ -36,21 +36,21 @@ import com.javajober.blockSetting.repository.BlockSettingRepository;
 import com.javajober.styleSetting.repository.StyleSettingRepository;
 import com.javajober.themeSetting.repository.ThemeSettingRepository;
 import com.javajober.snsBlock.domain.SNSBlock;
-import com.javajober.snsBlock.dto.request.SNSBlockRequest;
+import com.javajober.snsBlock.dto.request.SNSBlockSaveRequest;
 import com.javajober.snsBlock.repository.SNSBlockRepository;
 import com.javajober.spaceWall.domain.BlockType;
 import com.javajober.spaceWall.domain.FlagType;
 import com.javajober.spaceWall.domain.SpaceWall;
 import com.javajober.spaceWallCategory.domain.SpaceWallCategoryType;
-import com.javajober.spaceWall.dto.request.BlockRequest;
-import com.javajober.spaceWall.dto.request.SpaceWallRequest;
+import com.javajober.spaceWall.dto.request.BlockSaveRequest;
+import com.javajober.spaceWall.dto.request.SpaceWallSaveRequest;
 import com.javajober.spaceWall.dto.response.SpaceWallResponse;
 import com.javajober.spaceWall.repository.SpaceWallRepository;
 import com.javajober.template.domain.TemplateBlock;
-import com.javajober.template.dto.request.TemplateBlockRequest;
+import com.javajober.template.dto.request.TemplateBlockSaveRequest;
 import com.javajober.template.repository.TemplateBlockRepository;
 import com.javajober.wallInfoBlock.domain.WallInfoBlock;
-import com.javajober.wallInfoBlock.dto.request.WallInfoBlockRequest;
+import com.javajober.wallInfoBlock.dto.request.WallInfoBlockSaveRequest;
 import com.javajober.wallInfoBlock.repository.WallInfoBlockRepository;
 
 import org.springframework.stereotype.Service;
@@ -129,11 +129,12 @@ public class SpaceWallService {
 	}
 
 	@Transactional
-	public void save(final SpaceWallRequest spaceWallRequest, FlagType flagType) {
+	public void save(final SpaceWallSaveRequest spaceWallSaveRequest, FlagType flagType) {
 
-		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
-		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getAddSpaceId());
-		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
+		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(
+			spaceWallSaveRequest.getData().getCategory());
+		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallSaveRequest.getData().getAddSpaceId());
+		Member member = memberRepository.findMember(spaceWallSaveRequest.getData().getMemberId());
 
 		Long blocksPosition = 2L;
 		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
@@ -141,13 +142,13 @@ public class SpaceWallService {
 		ArrayNode blockInfoArray = jsonMapper.createArrayNode();
 		AtomicInteger i = new AtomicInteger();
 
-		WallInfoBlockRequest wallInfoBlockRequest = spaceWallRequest.getData().getWallInfoBlock();
-		Long wallInfoBlock = saveWallInfoBlock(wallInfoBlockRequest);
+		WallInfoBlockSaveRequest wallInfoBlockSaveRequest = spaceWallSaveRequest.getData().getWallInfoBlock();
+		Long wallInfoBlock = saveWallInfoBlock(wallInfoBlockSaveRequest);
 		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
 		Long blockStartPosition = 1L;
 		addBlockToJsonArray(blockInfoArray, jsonMapper, blockStartPosition, wallInfoBlockType, wallInfoBlock);
 
-		spaceWallRequest.getData().getBlocks().forEach(block -> {
+		spaceWallSaveRequest.getData().getBlocks().forEach(block -> {
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
 			Long position = blocksPositionCounter.getAndIncrement();
 			switch (blockType) {
@@ -159,17 +160,17 @@ public class SpaceWallService {
 					freeBlockIds.forEach(freeBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, freeBlockId, block));
 					break;
 				case SNS_BLOCK:
-					List<SNSBlockRequest> snsBlockRequests = jsonMapper.convertValue(block.getSubData(),
-							new TypeReference<List<SNSBlockRequest>>() {
+					List<SNSBlockSaveRequest> snsBlockSaveRequests = jsonMapper.convertValue(block.getSubData(),
+							new TypeReference<List<SNSBlockSaveRequest>>() {
 							});
-					List<Long> snsBlockIds = saveSnsBlocks(snsBlockRequests);
+					List<Long> snsBlockIds = saveSnsBlocks(snsBlockSaveRequests);
 					snsBlockIds.forEach(snsBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, snsBlockId, block));
 					break;
 				case TEMPLATE_BLOCK:
-					List<TemplateBlockRequest> templateBlockRequests = jsonMapper.convertValue(block.getSubData(),
-							new TypeReference<List<TemplateBlockRequest>>() {
+					List<TemplateBlockSaveRequest> templateBlockSaveRequests = jsonMapper.convertValue(block.getSubData(),
+							new TypeReference<List<TemplateBlockSaveRequest>>() {
 							});
-					List<Long> templateBlockIds = saveTemplateBlocks(templateBlockRequests);
+					List<Long> templateBlockIds = saveTemplateBlocks(templateBlockSaveRequests);
 					templateBlockIds.forEach(templateBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, templateBlockId, block));
 					break;
 				case FILE_BLOCK:
@@ -188,20 +189,20 @@ public class SpaceWallService {
 			}
 		});
 
-		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
+		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallSaveRequest.getData().getStyleSetting();
 		Long styleSetting = saveStyleSetting(styleSettingSaveRequest);
 		String styleSettingString = "styleSetting";
 		Long stylePosition = blocksPositionCounter.getAndIncrement();
 		addBlockToJsonArray(blockInfoArray, jsonMapper, stylePosition, styleSettingString, styleSetting);
 
 		String blockInfoArrayAsString = blockInfoArray.toString();
-		String shareURL = spaceWallRequest.getData().getShareURL();
-		SpaceWall spaceWall = SpaceWallRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
+		String shareURL = spaceWallSaveRequest.getData().getShareURL();
+		SpaceWall spaceWall = SpaceWallSaveRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
 		spaceWallRepository.save(spaceWall);
 	}
 
-	private Long saveWallInfoBlock(WallInfoBlockRequest wallInfoBlockRequest) {
-		WallInfoBlock wallInfoBlock = WallInfoBlockRequest.toEntity(wallInfoBlockRequest);
+	private Long saveWallInfoBlock(WallInfoBlockSaveRequest wallInfoBlockSaveRequest) {
+		WallInfoBlock wallInfoBlock = WallInfoBlockSaveRequest.toEntity(wallInfoBlockSaveRequest);
 
 		return wallInfoBlockRepository.save(wallInfoBlock).getId();
 	}
@@ -215,21 +216,21 @@ public class SpaceWallService {
 		return freeBlockIds;
 	}
 
-	private List<Long> saveSnsBlocks(List<SNSBlockRequest> subData) {
+	private List<Long> saveSnsBlocks(List<SNSBlockSaveRequest> subData) {
 		List<Long> snsBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
-			SNSBlock snsBlock = SNSBlockRequest.toEntity(block);
+			SNSBlock snsBlock = SNSBlockSaveRequest.toEntity(block);
 			snsBlockIds.add(snsBlockRepository.save(snsBlock).getId());
 		});
 		return snsBlockIds;
 	}
 
-	private List<Long> saveTemplateBlocks(List<TemplateBlockRequest> subData){
+	private List<Long> saveTemplateBlocks(List<TemplateBlockSaveRequest> subData){
 		List<Long> templateBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
-			TemplateBlock templateBlock = TemplateBlockRequest.toEntity(block);
+			TemplateBlock templateBlock = TemplateBlockSaveRequest.toEntity(block);
 			templateBlockIds.add(templateBlockRepository.save(templateBlock).getId());
 		});
 		return templateBlockIds;
@@ -279,7 +280,7 @@ public class SpaceWallService {
 		return themeSettingRepository.save(themeSetting);
 	}
 
-	private void addBlockInfoToArray(ArrayNode blockInfoArray, ObjectMapper jsonMapper, BlockType blockType, Long position, Long blockId, BlockRequest block) {
+	private void addBlockInfoToArray(ArrayNode blockInfoArray, ObjectMapper jsonMapper, BlockType blockType, Long position, Long blockId, BlockSaveRequest block) {
 		String currentBlockTypeTitle = blockType.getEngTitle();
 		String blockUUID = block.getBlockUUID();
 

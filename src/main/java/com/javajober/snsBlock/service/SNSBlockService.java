@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.javajober.snsBlock.domain.SNSBlock;
 import com.javajober.snsBlock.domain.SNSType;
 import com.javajober.snsBlock.dto.request.SNSBlockDeleteRequest;
-import com.javajober.snsBlock.dto.request.SNSBlockRequest;
-import com.javajober.snsBlock.dto.request.SNSBlockRequests;
+import com.javajober.snsBlock.dto.request.SNSBlockSaveRequest;
+import com.javajober.snsBlock.dto.request.SNSBlockSaveRequests;
 import com.javajober.snsBlock.dto.request.SNSBlockUpdateRequest;
 import com.javajober.snsBlock.dto.response.SNSBlockResponse;
 import com.javajober.snsBlock.dto.response.SNSBlockResponses;
@@ -27,9 +27,9 @@ public class SNSBlockService {
 	}
 
 	@Transactional
-	public void save(final SNSBlockRequests<SNSBlockRequest> snsBlockRequests) {
-		snsBlockRequests.getSubData().forEach(snsBlockRequest -> {
-			SNSBlock snsBlock = SNSBlockRequest.toEntity(snsBlockRequest);
+	public void save(final SNSBlockSaveRequests<SNSBlockSaveRequest> snsBlockSaveRequests) {
+		snsBlockSaveRequests.getSubData().forEach(snsBlockSaveRequest -> {
+			SNSBlock snsBlock = SNSBlockSaveRequest.toEntity(snsBlockSaveRequest);
 			snsBlockRepository.save(snsBlock);
 		});
 	}
@@ -44,8 +44,8 @@ public class SNSBlockService {
 		return new SNSBlockResponses(snsBlocks);
 	}
 
-	public void update(@RequestBody final SNSBlockRequests<SNSBlockUpdateRequest> snsBlockRequests) {
-		snsBlockRequests.getSubData().forEach(snsBlockRequest -> {
+	public void update(@RequestBody final SNSBlockSaveRequests<SNSBlockUpdateRequest> snsBlockSaveRequests) {
+		snsBlockSaveRequests.getSubData().forEach(snsBlockRequest -> {
 
 			SNSBlock snsBlock = snsBlockRepository.findSNSBlock(snsBlockRequest.getSnsId());
 

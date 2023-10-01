@@ -5,14 +5,14 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class TemplateBlockRequests<T> {
+public class TemplateBlockSaveRequests<T> {
 	List<T> subData;
 
-	private TemplateBlockRequests(){
+	private TemplateBlockSaveRequests(){
 
 	}
 
-	public TemplateBlockRequests(List<T> subData) {
+	public TemplateBlockSaveRequests(List<T> subData) {
 		this.subData = subData;
 	}
 }

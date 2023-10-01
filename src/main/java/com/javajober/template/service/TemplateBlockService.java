@@ -11,8 +11,8 @@ import com.javajober.memberGroup.domain.MemberGroup;
 import com.javajober.template.domain.TemplateAuth;
 import com.javajober.template.domain.TemplateBlock;
 import com.javajober.template.dto.request.TemplateBlockDeleteRequest;
-import com.javajober.template.dto.request.TemplateBlockRequest;
-import com.javajober.template.dto.request.TemplateBlockRequests;
+import com.javajober.template.dto.request.TemplateBlockSaveRequest;
+import com.javajober.template.dto.request.TemplateBlockSaveRequests;
 import com.javajober.template.dto.response.TemplateBlockResponse;
 import com.javajober.template.dto.response.TemplateBlockResponses;
 import com.javajober.template.dto.request.TemplateBlockUpdateRequest;
@@ -34,20 +34,20 @@ public class TemplateBlockService {
 	}
 
 	@Transactional
-	public void save(final TemplateBlockRequests<TemplateBlockRequest> templateBlockRequests) {
+	public void save(final TemplateBlockSaveRequests<TemplateBlockSaveRequest> templateBlockSaveRequests) {
 
-		List<TemplateBlockRequest> subDataList = templateBlockRequests.getSubData();
+		List<TemplateBlockSaveRequest> subDataList = templateBlockSaveRequests.getSubData();
 
-		for (TemplateBlockRequest templateBlockRequest : subDataList) {
+		for (TemplateBlockSaveRequest templateBlockSaveRequest : subDataList) {
 
-			TemplateBlock templateBlock = TemplateBlockRequest.toEntity(templateBlockRequest);
+			TemplateBlock templateBlock = TemplateBlockSaveRequest.toEntity(templateBlockSaveRequest);
 			templateBlockRepository.save(templateBlock);
 
-			List<Long> allAuthIds = templateBlockRequest.getAllAuthIds();
+			List<Long> allAuthIds = templateBlockSaveRequest.getAllAuthIds();
 
 			for (Long authId : allAuthIds) {
 				MemberGroup memberGroup = memberGroupRepository.getById(authId);
-				Boolean hasAccess = templateBlockRequest.getHasAccessTemplateAuth().contains(authId);
+				Boolean hasAccess = templateBlockSaveRequest.getHasAccessTemplateAuth().contains(authId);
 				TemplateAuth templateAuth = new TemplateAuth(memberGroup, hasAccess, templateBlock);
 				templateAuthRepository.save(templateAuth);
 			}
@@ -84,9 +84,9 @@ public class TemplateBlockService {
 	}
 
 	@Transactional
-	public void update(@RequestBody final TemplateBlockRequests<TemplateBlockUpdateRequest> templateBlockRequests){
+	public void update(@RequestBody final TemplateBlockSaveRequests<TemplateBlockUpdateRequest> templateBlockSaveRequests){
 
-		for(TemplateBlockUpdateRequest templateBlockRequest : templateBlockRequests.getSubData()){
+		for(TemplateBlockUpdateRequest templateBlockRequest : templateBlockSaveRequests.getSubData()){
 
 			TemplateBlock templateBlock = templateBlockRepository.getById(templateBlockRequest.getId());
 			templateBlock.update(templateBlockRequest.getTemplateUUID(), templateBlockRequest.getTemplateTitle(), templateBlockRequest.getTemplateDescription());

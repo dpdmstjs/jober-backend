@@ -9,14 +9,14 @@ import com.javajober.spaceWallCategory.domain.SpaceWallCategoryType;
 import lombok.Getter;
 
 @Getter
-public class SpaceWallRequest {
-    private DataRequest data;
+public class SpaceWallSaveRequest {
+    private DataSaveRequest data;
 
-    private SpaceWallRequest() {
+    private SpaceWallSaveRequest() {
 
     }
 
-    public SpaceWallRequest(final DataRequest data) {
+    public SpaceWallSaveRequest(final DataSaveRequest data) {
         this.data = data;
     }
 

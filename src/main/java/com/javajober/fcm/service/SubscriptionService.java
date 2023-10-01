@@ -1,7 +1,7 @@
 package com.javajober.fcm.service;
 
 import com.javajober.fcm.domain.Subscription;
-import com.javajober.fcm.dto.request.SubscriptionRequest;
+import com.javajober.fcm.dto.request.SubscriptionSaveRequest;
 import com.javajober.fcm.repository.SubscriptionRepository;
 import com.javajober.member.domain.Member;
 import com.javajober.member.repository.MemberRepository;
@@ -24,15 +24,15 @@ public class SubscriptionService {
         this.spaceWallRepository = spaceWallRepository;
     }
 
-    public void subscribe(SubscriptionRequest request) {
+    public void subscribe(SubscriptionSaveRequest request) {
         Member subscriber = memberRepository.findMember(request.getSubscriberMemberId());
         SpaceWall spaceWall = spaceWallRepository.getById(request.getMemberId(), request.getSpaceWallId());
 
-        Subscription subscription = SubscriptionRequest.toEntity(request, subscriber, spaceWall);
+        Subscription subscription = SubscriptionSaveRequest.toEntity(request, subscriber, spaceWall);
         subscriptionRepository.save(subscription);
     }
 
-    public void unsubscribe(SubscriptionRequest request) {
+    public void unsubscribe(SubscriptionSaveRequest request) {
         Member subscriber = memberRepository.findMember(request.getSubscriberMemberId());
         SpaceWall spaceWall = spaceWallRepository.getById(request.getMemberId(), request.getSpaceWallId());
 

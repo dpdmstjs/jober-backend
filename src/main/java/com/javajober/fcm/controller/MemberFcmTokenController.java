@@ -1,6 +1,6 @@
 package com.javajober.fcm.controller;
 
-import com.javajober.fcm.dto.request.MemberFcmTokenRequest;
+import com.javajober.fcm.dto.request.MemberFcmTokenSaveRequest;
 import com.javajober.fcm.service.MemberFcmTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class MemberFcmTokenController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiUtils.ApiResponse<Object>> saveFcmToken(@RequestBody MemberFcmTokenRequest request) {
+    public ResponseEntity<ApiUtils.ApiResponse<Object>> saveFcmToken(@RequestBody MemberFcmTokenSaveRequest request) {
         memberFcmTokenService.saveFcmToken(request);
         return ResponseEntity.ok(ApiUtils.success(HttpStatus.CREATED, SuccessMessage.CREATE_SUCCESS, null));
     }

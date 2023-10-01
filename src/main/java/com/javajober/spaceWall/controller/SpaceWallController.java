@@ -3,7 +3,7 @@ package com.javajober.spaceWall.controller;
 import com.javajober.core.message.SuccessMessage;
 import com.javajober.core.util.ApiUtils;
 import com.javajober.spaceWall.domain.FlagType;
-import com.javajober.spaceWall.dto.request.SpaceWallRequest;
+import com.javajober.spaceWall.dto.request.SpaceWallSaveRequest;
 import com.javajober.spaceWall.dto.response.SpaceWallResponse;
 import com.javajober.spaceWall.service.SpaceWallService;
 import org.springframework.http.HttpStatus;
@@ -30,18 +30,18 @@ public class SpaceWallController {
     }
 
     @PostMapping("/wall")
-    public ResponseEntity<?> save(@RequestBody final SpaceWallRequest spaceWallRequest) {
+    public ResponseEntity<?> save(@RequestBody final SpaceWallSaveRequest spaceWallSaveRequest) {
 
-        spaceWallService.save(spaceWallRequest, FlagType.SAVED);
+        spaceWallService.save(spaceWallSaveRequest, FlagType.SAVED);
 
         return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.CREATE_SUCCESS, null));
     }
 
     @PostMapping(path = "/wall-temporary")
-    public ResponseEntity<?> savePending (@RequestBody final SpaceWallRequest spaceWallRequest)
+    public ResponseEntity<?> savePending (@RequestBody final SpaceWallSaveRequest spaceWallSaveRequest)
     {
 
-        spaceWallService.save(spaceWallRequest, FlagType.PENDING);
+        spaceWallService.save(spaceWallSaveRequest, FlagType.PENDING);
 
         return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.CREATE_SUCCESS, null));
     }
