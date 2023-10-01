@@ -140,9 +140,6 @@ public class SpaceWallService {
 	@Transactional
 	public void save(final SpaceWallRequest spaceWallRequest, FlagType flagType) {
 
-		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
-		saveStyleSetting(styleSettingSaveRequest);
-
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getAddSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
@@ -204,6 +201,12 @@ public class SpaceWallService {
 		String shareURL = spaceWallRequest.getData().getShareURL();
 		SpaceWall spaceWall = SpaceWallRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
 		spaceWallRepository.save(spaceWall);
+
+		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
+		Long styleSetting = saveStyleSetting(styleSettingSaveRequest);
+		String styleSettingString = "styleSetting";
+		int stylePosition = 1;
+		addBlockToJsonArray(blockInfoArray, jsonMapper, stylePosition, styleSettingString, styleSetting);
 	}
 
 	private Long saveWallInfoBlock(WallInfoBlockRequest wallInfoBlockRequest) {
@@ -266,12 +269,14 @@ public class SpaceWallService {
 		return listBlockIds;
 	}
 
-	private void saveStyleSetting(StyleSettingSaveRequest saveRequest){
+	private Long saveStyleSetting(StyleSettingSaveRequest saveRequest){
 		StyleSetting styleSetting =saveRequest.toEntity();
+
 		backgroundSettingRepository.save(styleSetting.getBackgroundSetting());
 		blockSettingRepository.save(styleSetting.getBlockSetting());
 		themeSettingRepository.save(styleSetting.getThemeSetting());
-		styleSettingRepository.save(styleSetting);
+
+		return styleSettingRepository.save(styleSetting).getId();
 	}
 
 	private BackgroundSetting saveBackgroundSetting(BackgroundSettingSaveRequest saveRequest){
