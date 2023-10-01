@@ -3,6 +3,8 @@ package com.javajober.spaceWall.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.javajober.addSpace.repository.AddSpaceRepository;
 import com.javajober.core.config.FileDirectoryConfig;
 import com.javajober.core.error.exception.Exception404;
@@ -55,6 +57,7 @@ import com.javajober.wallInfoBlock.dto.request.WallInfoBlockRequest;
 import com.javajober.wallInfoBlock.repository.WallInfoBlockRepository;
 
 import org.checkerframework.checker.units.qual.A;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +65,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -142,7 +146,7 @@ public class SpaceWallService {
 		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
 		saveStyleSetting(styleSettingSaveRequest);
 
-		ObjectMapper mapper = new ObjectMapper();
+
 		AtomicInteger i = new AtomicInteger();
 
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
@@ -150,41 +154,59 @@ public class SpaceWallService {
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getAddSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
 
+		AtomicInteger blockPositionCounter = new AtomicInteger(2);
+		ObjectMapper jsonMapper = new ObjectMapper();
+		ArrayNode blockInfoArray = jsonMapper.createArrayNode();
+
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-      
+			int position = blockPositionCounter.getAndIncrement();
 			switch (blockType) {
 				case FREE_BLOCK:
-					List<FreeBlockSaveRequest> freeBlockRequests = mapper.convertValue(block.getSubData(),
+					List<FreeBlockSaveRequest> freeBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<FreeBlockSaveRequest>>() {
 							});
-					saveFreeBlocks(freeBlockRequests);
+					List<Long> freeIds = saveFreeBlocks(freeBlockRequests);
+					freeIds.forEach(freeId -> {
+						ObjectNode blockInfoObject = jsonMapper.createObjectNode();
+						blockInfoObject.put("position", position);
+						blockInfoObject.put("block_type", blockType.getEngTitle());
+						blockInfoObject.put("block_id", freeId);
+						blockInfoObject.put("block_UUID", block.getBlockUUID());
+						blockInfoArray.add(blockInfoObject);
+
+					});
 					break;
 				case SNS_BLOCK:
-					List<SNSBlockRequest> snsBlockRequests = mapper.convertValue(block.getSubData(),
+					List<SNSBlockRequest> snsBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<SNSBlockRequest>>() {
 							});
 					saveSnsBlocks(snsBlockRequests);
 					break;
 				case TEMPLATE_BLOCK:
-					List<TemplateBlockRequest> templateBlockRequests = mapper.convertValue(block.getSubData(),
+					List<TemplateBlockRequest> templateBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<TemplateBlockRequest>>() {
 							});
 					saveTemplateBlock(templateBlockRequests);
 					break;
 				case FILE_BLOCK:
-					List<FileBlockSaveRequest> fileBlockSaveRequests = mapper.convertValue(block.getSubData(),
+					List<FileBlockSaveRequest> fileBlockSaveRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<FileBlockSaveRequest>>() {
 							});
 					saveFileBlocks(fileBlockSaveRequests);
 					break;
 				case LIST_BLOCK:
-					List<ListBlockSaveRequest> listBlockRequests = mapper.convertValue(block.getSubData(),
+					List<ListBlockSaveRequest> listBlockRequests = jsonMapper.convertValue(block.getSubData(),
 						new TypeReference<List<ListBlockSaveRequest>>() {
 						});
 					saveListBlocks(listBlockRequests);
 			}
 		});
+
+		String blockInfoArrayAsString = blockInfoArray.toString();
+		String shareURL = spaceWallRequest.getData().getShareURL();
+		SpaceWall spaceWall = SpaceWallRequest.toEntity(SpaceWallCategoryType.CAREER, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
+		spaceWallRepository.save(spaceWall);
 	}
 
 	private void saveWallInfoBlock(WallInfoBlockRequest wallInfoBlockRequest) {
@@ -193,11 +215,13 @@ public class SpaceWallService {
 		wallInfoBlockRepository.save(wallInfoBlock);
 	}
 
-	private void saveFreeBlocks(List<FreeBlockSaveRequest> subData) {
+	private List<Long> saveFreeBlocks(List<FreeBlockSaveRequest> subData) {
+		List<Long> freeIds = new ArrayList<>();
 		subData.forEach(block -> {
 			FreeBlock freeBlock = FreeBlockSaveRequest.toEntity(block);
-			freeBlockRepository.save(freeBlock);
+			freeIds.add(freeBlockRepository.save(freeBlock).getId());
 		});
+		return freeIds;
 	}
 
 	private void saveStyleSetting(StyleSettingSaveRequest saveRequest){
