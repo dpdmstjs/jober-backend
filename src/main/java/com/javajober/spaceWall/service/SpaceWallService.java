@@ -140,9 +140,6 @@ public class SpaceWallService {
 	@Transactional
 	public void save(final SpaceWallRequest spaceWallRequest, FlagType flagType) {
 
-		WallInfoBlockRequest wallInfoBlockRequest = spaceWallRequest.getData().getWallInfoBlock();
-		saveWallInfoBlock(wallInfoBlockRequest);
-
 		StyleSettingSaveRequest styleSettingSaveRequest = spaceWallRequest.getData().getStyleSetting();
 		saveStyleSetting(styleSettingSaveRequest);
 
@@ -150,49 +147,56 @@ public class SpaceWallService {
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getAddSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
 
-		AtomicLong blockPositionCounter = new AtomicLong();
+		Long blocksPosition = 2L;
+		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
 		ObjectMapper jsonMapper = new ObjectMapper();
 		ArrayNode blockInfoArray = jsonMapper.createArrayNode();
 		AtomicInteger i = new AtomicInteger();
 
+		WallInfoBlockRequest wallInfoBlockRequest = spaceWallRequest.getData().getWallInfoBlock();
+		Long wallInfoBlock = saveWallInfoBlock(wallInfoBlockRequest);
+		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
+		int blockStartPosition = 1;
+		addBlockToJsonArray(blockInfoArray, jsonMapper, blockStartPosition, wallInfoBlockType, wallInfoBlock);
+
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-			Long position = blockPositionCounter.getAndIncrement();
+			Long position = blocksPositionCounter.getAndIncrement();
 			switch (blockType) {
 				case FREE_BLOCK:
 					List<FreeBlockSaveRequest> freeBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<FreeBlockSaveRequest>>() {
 							});
 					List<Long> freeBlockIds = saveFreeBlocks(freeBlockRequests);
-					freeBlockIds.forEach(freeBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, freeBlockId, block));
+					freeBlockIds.forEach(freeBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, freeBlockId, block));
 					break;
 				case SNS_BLOCK:
 					List<SNSBlockRequest> snsBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<SNSBlockRequest>>() {
 							});
 					List<Long> snsBlockIds = saveSnsBlocks(snsBlockRequests);
-					snsBlockIds.forEach(snsBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, snsBlockId, block));
+					snsBlockIds.forEach(snsBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, snsBlockId, block));
 					break;
 				case TEMPLATE_BLOCK:
 					List<TemplateBlockRequest> templateBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<TemplateBlockRequest>>() {
 							});
 					List<Long> templateBlockIds = saveTemplateBlocks(templateBlockRequests);
-					templateBlockIds.forEach(templateBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, templateBlockId, block));
+					templateBlockIds.forEach(templateBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, templateBlockId, block));
 					break;
 				case FILE_BLOCK:
 					List<FileBlockSaveRequest> fileBlockSaveRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<FileBlockSaveRequest>>() {
 							});
 					List<Long> fileBlockIds = saveFileBlocks(fileBlockSaveRequests);
-					fileBlockIds.forEach(templateBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, templateBlockId, block));
+					fileBlockIds.forEach(templateBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, templateBlockId, block));
 					break;
 				case LIST_BLOCK:
 					List<ListBlockSaveRequest> listBlockRequests = jsonMapper.convertValue(block.getSubData(),
 						new TypeReference<List<ListBlockSaveRequest>>() {
 						});
 					List<Long> listBlockIds = saveListBlocks(listBlockRequests);
-					listBlockIds.forEach(listBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, listBlockId, block));
+					listBlockIds.forEach(listBlockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, listBlockId, block));
 			}
 		});
 
@@ -202,10 +206,10 @@ public class SpaceWallService {
 		spaceWallRepository.save(spaceWall);
 	}
 
-	private void saveWallInfoBlock(WallInfoBlockRequest wallInfoBlockRequest) {
-
+	private Long saveWallInfoBlock(WallInfoBlockRequest wallInfoBlockRequest) {
 		WallInfoBlock wallInfoBlock = WallInfoBlockRequest.toEntity(wallInfoBlockRequest);
-		wallInfoBlockRepository.save(wallInfoBlock);
+
+		return wallInfoBlockRepository.save(wallInfoBlock).getId();
 	}
 
 	private List<Long> saveFreeBlocks(List<FreeBlockSaveRequest> subData) {
@@ -286,18 +290,31 @@ public class SpaceWallService {
 		return themeSettingRepository.save(themeSetting);
 	}
 
-	private void addBlockInfoToArray(ArrayNode blockInfoArray, BlockType blockType, Long position, Long blockId, BlockRequest block) {
-		ObjectMapper jsonMapper = new ObjectMapper();
+	private void addBlockInfoToArray(ArrayNode blockInfoArray, ObjectMapper jsonMapper, BlockType blockType, Long position, Long blockId, BlockRequest block) {
 		String currentBlockTypeTitle = blockType.getEngTitle();
 		String blockUUID = block.getBlockUUID();
 
 		ObjectNode blockInfoObject = jsonMapper.createObjectNode();
+
 		blockInfoObject.put("position", position);
 		blockInfoObject.put("block_type", currentBlockTypeTitle);
 		blockInfoObject.put("block_id", blockId);
 		blockInfoObject.put("block_UUID", blockUUID);
+
 		blockInfoArray.add(blockInfoObject);
 	}
+
+	private void addBlockToJsonArray(ArrayNode jsonArray, ObjectMapper mapper, int position, String blockType, Long blockId) {
+		ObjectNode blockInfoObject = mapper.createObjectNode();
+
+		blockInfoObject.put("position", position);
+		blockInfoObject.put("blockType", blockType);
+		blockInfoObject.put("blockId", blockId);
+		blockInfoObject.put("blockUUID", (String)null);
+
+		jsonArray.add(blockInfoObject);
+	}
+
 	private String uploadFile(MultipartFile file) {
 
 		if (file.isEmpty()) {   // 파일 첨부를 안했을 경우
