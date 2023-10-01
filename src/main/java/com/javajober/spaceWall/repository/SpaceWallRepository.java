@@ -16,7 +16,7 @@ public interface SpaceWallRepository extends Repository<SpaceWall, Long> {
     List<SpaceWall> findSpaceWalls(@Param("memberId") Long memberId, @Param("addSpaceId") Long addSpaceId);
 
     boolean existsByAddSpaceId(Long addSpaceId);
-
+  
     SpaceWall save(SpaceWall spaceWall);
 
     default SpaceWall getById(final Long memberId, final Long spaceWallId) {
