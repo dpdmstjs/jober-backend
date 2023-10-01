@@ -20,7 +20,7 @@ public class SpaceWallRequest {
         this.data = data;
     }
 
-    public static SpaceWall toEntity(SpaceWallCategoryType category, Member member, AddSpace addSpace, String shareURL, FlagType flagType, String blocks) {
+    public static SpaceWall toEntity(final SpaceWallCategoryType category, final Member member, final AddSpace addSpace, final String shareURL, final FlagType flagType, final String blocks) {
         return SpaceWall.builder()
             .spaceWallCategoryType(category)
             .member(member)
