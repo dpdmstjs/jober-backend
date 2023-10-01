@@ -162,8 +162,8 @@ public class SpaceWallService {
 					List<FreeBlockSaveRequest> freeBlockRequests = jsonMapper.convertValue(block.getSubData(),
 							new TypeReference<List<FreeBlockSaveRequest>>() {
 							});
-					List<Long> freeIds = saveFreeBlocks(freeBlockRequests);
-					freeIds.forEach(freeId -> addBlockInfoToArray(blockInfoArray, blockType, position, freeId, block));
+					List<Long> freeBlockIds = saveFreeBlocks(freeBlockRequests);
+					freeBlockIds.forEach(freeBlockId -> addBlockInfoToArray(blockInfoArray, blockType, position, freeBlockId, block));
 					break;
 				case SNS_BLOCK:
 					List<SNSBlockRequest> snsBlockRequests = jsonMapper.convertValue(block.getSubData(),
@@ -204,26 +204,26 @@ public class SpaceWallService {
 	}
 
 	private List<Long> saveFreeBlocks(List<FreeBlockSaveRequest> subData) {
-		List<Long> freeIds = new ArrayList<>();
+		List<Long> freeBlockIds = new ArrayList<>();
 		subData.forEach(block -> {
 			FreeBlock freeBlock = FreeBlockSaveRequest.toEntity(block);
-			freeIds.add(freeBlockRepository.save(freeBlock).getId());
+			freeBlockIds.add(freeBlockRepository.save(freeBlock).getId());
 		});
-		return freeIds;
+		return freeBlockIds;
 	}
 
 	private List<Long> saveSnsBlocks(List<SNSBlockRequest> subData) {
-		List<Long> snsIds = new ArrayList<>();
+		List<Long> snsBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
 			SNSBlock snsBlock = SNSBlockRequest.toEntity(block);
-			snsIds.add(snsBlockRepository.save(snsBlock).getId());
+			snsBlockIds.add(snsBlockRepository.save(snsBlock).getId());
 		});
-		return snsIds;
+		return snsBlockIds;
 	}
 
 	private List<Long> saveTemplateBlock(List<TemplateBlockRequest> subData){
-		List<Long> templateIds = new ArrayList<>();
+		List<Long> templateBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
 			TemplateBlock templateBlock = TemplateBlockRequest.toEntity(block);
@@ -233,28 +233,28 @@ public class SpaceWallService {
 				MemberGroup memberGroup = memberGroupRepository.getById(authId);
 				Boolean hasAccess = block.getHasAccessTemplateAuth().contains(authId);
 				TemplateAuth templateAuth = new TemplateAuth(memberGroup, hasAccess, templateBlock);
-				templateIds.add(templateAuthRepository.save(templateAuth).getId());
+				templateBlockIds.add(templateAuthRepository.save(templateAuth).getId());
 			});
 		});
-		return templateIds;
+		return templateBlockIds;
 	}
 
 	private List<Long> saveFileBlocks(List<FileBlockSaveRequest> subData) {
-		List<Long> fileIds = new ArrayList<>();
+		List<Long> fileBlockIds = new ArrayList<>();
 		subData.forEach(block -> {
 			FileBlock fileBlock = FileBlockSaveRequest.toEntity(block);
-			fileIds.add(fileBlockRepository.save(fileBlock).getId());
+			fileBlockIds.add(fileBlockRepository.save(fileBlock).getId());
 		});
-		return fileIds;
+		return fileBlockIds;
 	}
 
 	private List<Long> saveListBlocks(List<ListBlockSaveRequest> subData) {
-		List<Long> listIds = new ArrayList<>();
+		List<Long> listBlockIds = new ArrayList<>();
 		subData.forEach(block -> {
 			ListBlock listBlock = ListBlockSaveRequest.toEntity(block);
-			listIds.add(listBlockRepository.save(listBlock).getId());
+			listBlockIds.add(listBlockRepository.save(listBlock).getId());
 		});
-		return listIds;
+		return listBlockIds;
 	}
 
 	private void saveStyleSetting(StyleSettingSaveRequest saveRequest){
