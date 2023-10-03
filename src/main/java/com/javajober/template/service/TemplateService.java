@@ -9,22 +9,22 @@ import org.springframework.transaction.annotation.Transactional;
 import com.javajober.space.repository.AddSpaceRepository;
 import com.javajober.core.error.exception.Exception404;
 import com.javajober.core.message.ErrorMessage;
-import com.javajober.spaceWallCategory.domain.SpaceWallCategory;
 import com.javajober.member.domain.Member;
+import com.javajober.spaceWallCategory.domain.SpaceWallCategory;
 import com.javajober.spaceWallCategory.domain.SpaceWallCategoryType;
-import com.javajober.templateBlock.domain.Template;
-import com.javajober.template.domain.TemplateBlock;
+import com.javajober.template.domain.Template;
+import com.javajober.templateBlock.domain.TemplateBlock;
 import com.javajober.template.dto.response.MemberAuthResponse;
 import com.javajober.space.domain.AddSpace;
 import com.javajober.memberGroup.domain.MemberGroup;
 import com.javajober.space.domain.SpaceType;
 import com.javajober.template.domain.TemplateAuth;
-import com.javajober.templateBlock.dto.response.TemplateResponse;
+import com.javajober.template.dto.response.TemplateResponse;
 import com.javajober.memberGroup.repository.MemberGroupRepository;
 import com.javajober.spaceWallCategory.repository.SpaceWallCategoryRepository;
 import com.javajober.template.repository.TemplateAuthRepository;
-import com.javajober.template.repository.TemplateBlockRepository;
-import com.javajober.templateBlock.repository.TemplateRepository;
+import com.javajober.templateBlock.repository.TemplateBlockRepository;
+import com.javajober.template.repository.TemplateRepository;
 
 @Service
 public class TemplateService {
@@ -80,7 +80,9 @@ public class TemplateService {
 	@Transactional
 	public TemplateResponse getTemplateRecommend(SpaceWallCategoryType spaceWallCategoryType) {
 
-		List<Template> templates = templateRepository.getBySpaceWallCategory(spaceWallCategoryType);
+		SpaceWallCategory spaceWallCategory = spaceWallCategoryRepository.getBySpaceWallCategory(spaceWallCategoryType);
+
+		List<Template> templates = templateRepository.getBySpaceWallCategoryId(spaceWallCategory.getId());
 
 		List<TemplateResponse.TemplateInfo> templateInfos = new ArrayList<>();
 
