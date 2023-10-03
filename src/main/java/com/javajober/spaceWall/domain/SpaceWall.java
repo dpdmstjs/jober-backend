@@ -33,7 +33,7 @@ public class SpaceWall {
     @JoinColumn(name = "add_space_id", nullable = false)
     private AddSpace addSpace;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
@@ -69,5 +69,17 @@ public class SpaceWall {
         this.member = member;
         this.spaceWallCategoryType = spaceWallCategoryType;
         this.flag = flag;
+    }
+
+    public void update(SpaceWall spaceWall){
+        this.blocks = blocks;
+        this.shareURL = shareURL;
+        this.addSpace = addSpace;
+        this.flag = flag;
+
+    }
+
+    public void markAsDeleted() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

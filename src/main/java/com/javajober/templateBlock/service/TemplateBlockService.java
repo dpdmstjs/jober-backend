@@ -61,7 +61,7 @@ public class TemplateBlockService {
 
 		for(Long templateBlockId : templateBlockIds){
 
-			TemplateBlock templateblock = templateBlockRepository.getById(templateBlockId);
+			TemplateBlock templateblock = templateBlockRepository.findTemplateBlock(templateBlockId);
 
 			List<TemplateAuth> templateAuths = templateAuthRepository.findByTemplateBlockId(templateblock.getId());
 
@@ -88,7 +88,7 @@ public class TemplateBlockService {
 
 		for(TemplateBlockUpdateRequest templateBlockRequest : templateBlockRequests.getSubData()){
 
-			TemplateBlock templateBlock = templateBlockRepository.getById(templateBlockRequest.getId());
+			TemplateBlock templateBlock = templateBlockRepository.findTemplateBlock(templateBlockRequest.getId());
 			templateBlock.update(templateBlockRequest.getTemplateUUID(), templateBlockRequest.getTemplateTitle(), templateBlockRequest.getTemplateDescription());
 
 			List<TemplateAuth> authIds = templateAuthRepository.findByTemplateBlockId(templateBlock.getId());
