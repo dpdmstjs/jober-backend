@@ -78,7 +78,6 @@ public class SpaceWall {
         this.flag = flag;
     }
 
-
     public void markAsDeleted() {
         this.deletedAt = LocalDateTime.now();
     }
