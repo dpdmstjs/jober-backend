@@ -9,45 +9,39 @@ import com.javajober.spaceWall.repository.SpaceWallRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SpaceWallTemporaryService {
 
     private final SpaceWallRepository spaceWallRepository;
+    private final EntityManager entityManager;
 
-    public SpaceWallTemporaryService(final SpaceWallRepository spaceWallRepository){
+    public SpaceWallTemporaryService(final SpaceWallRepository spaceWallRepository, final EntityManager entityManager){
         this.spaceWallRepository = spaceWallRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
-    public void deleteTemporary(final Long memberId, final Long addSpaceId) {
+    public void delete(final Long memberId, final Long addSpaceId) {
+
         List<SpaceWall> spaceWalls = spaceWallRepository.findSpaceWallsOrThrow(memberId, addSpaceId);
 
         spaceWalls.forEach(spaceWall -> {
             if (spaceWall.getFlag().equals(FlagType.PENDING)) {
-                spaceWall.markAsDeleted();
+                entityManager.remove(spaceWall);
             }
         });
-
-        spaceWallRepository.saveAll(spaceWalls);
     }
 
-    public SpaceWallTemporaryResponse checkSpaceWallTemporary(Long memberId, Long addSpaceId) {
+    public SpaceWallTemporaryResponse hasSpaceWallTemporary(final Long memberId, final Long addSpaceId) {
 
-        List<SpaceWall> spaceWalls = spaceWallRepository.findSpaceWalls(memberId, addSpaceId);
-
-        if (spaceWalls == null || spaceWalls.isEmpty()) {
-            return new SpaceWallTemporaryResponse(null, false);
-        }
-
-        for (SpaceWall spaceWall : spaceWalls) {
-            if (spaceWall.getFlag().equals(FlagType.PENDING) && spaceWall.getDeletedAt() == null) {
-                return new SpaceWallTemporaryResponse(spaceWall.getId(), true);
-            }
-            if (spaceWall.getFlag().equals(FlagType.SAVED) && spaceWall.getDeletedAt() == null) {
-                throw new Exception404(ErrorMessage.SAVED_SPACE_WALL_ALREADY_EXISTS);
-            }
+        Optional<SpaceWall> spaceWall = spaceWallRepository.findByMemberIdAndAddSpaceIdAndFlag(memberId, addSpaceId, FlagType.PENDING);
+        if (spaceWall.isPresent()) {
+            Long spaceWallId = spaceWall.get().getId();
+            return new SpaceWallTemporaryResponse(spaceWallId, true);
         }
 
         return new SpaceWallTemporaryResponse(null, false);
