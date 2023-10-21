@@ -58,7 +58,6 @@ public class StyleSettingBlockStrategy implements FixBlockStrategy {
 		return styleSettingRepository.save(styleSetting).getId();
 	}
 
-
 	@Override
 	public String getStrategyName() {
 		return BlockStrategyName.StyleSettingBlockStrategy.name();
