@@ -115,17 +115,12 @@ public class SpaceWallService {
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
 
-		Long blocksPosition = 2L;
-		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
-
 		ArrayNode blockInfoArray = blockJsonHandler.createArrayNode();
 
-		String wallInfoBlockStrategyName = BlockType.WALL_INFO_BLOCK.getStrategyName();
-		FixBlockStrategy wallInfoBlockStrategy = blockStrategyFactory.findFixBlockStrategy(wallInfoBlockStrategyName);
-		Long wallInfoBlockId = wallInfoBlockStrategy.saveBlocks(data);
-		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
-		Long blockStartPosition = 1L;
-		blockJsonHandler.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlockId);
+		processWallInfoBlock(data, blockInfoArray);
+
+		Long blocksPosition = 2L;
+		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 
@@ -139,14 +134,7 @@ public class SpaceWallService {
 			blockIds.forEach(blockId -> blockJsonHandler.addBlockInfoToArray(blockInfoArray, position, blockId, block));
 		});
 
-
-		String styleSettingBlockStrategyName = BlockType.STYLE_SETTING.getStrategyName();
-		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
-		Long styleSettingBlockId = styleSettingBlockStrategy.saveBlocks(data);
-
-		String styleSettingString = "styleSetting";
-		Long stylePosition = blocksPositionCounter.getAndIncrement();
-		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
+		processStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
 
 		String blockInfoArrayAsString = blockInfoArray.toString();
 		String shareURL = spaceWallRequest.getData().getShareURL();
@@ -155,6 +143,24 @@ public class SpaceWallService {
 		Long spaceWallId = spaceWallRepository.save(spaceWall).getId();
 
 		return new SpaceWallSaveResponse(spaceWallId);
+	}
+
+	private void processWallInfoBlock(DataStringSaveRequest data, ArrayNode blockInfoArray) {
+		String wallInfoBlockStrategyName = BlockType.WALL_INFO_BLOCK.getStrategyName();
+		FixBlockStrategy wallInfoBlockStrategy = blockStrategyFactory.findFixBlockStrategy(wallInfoBlockStrategyName);
+		Long wallInfoBlockId = wallInfoBlockStrategy.saveBlocks(data);
+		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
+		Long blockStartPosition = 1L;
+		blockJsonHandler.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlockId);
+	}
+
+	private void processStyleSettingBlock(DataStringSaveRequest data, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
+		String styleSettingBlockStrategyName = BlockType.STYLE_SETTING.getStrategyName();
+		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
+		Long styleSettingBlockId = styleSettingBlockStrategy.saveBlocks(data);
+		String styleSettingString = "styleSetting";
+		Long stylePosition = blocksPositionCounter.getAndIncrement();
+		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
 	}
 
 	@Transactional
@@ -226,6 +232,7 @@ public class SpaceWallService {
 
 		return new SpaceWallSaveResponse(spaceWallId);
 	}
+
 
 	private Long updateWallInfoBlock(final WallInfoBlockStringUpdateRequest wallInfoBlockRequest) {
 
