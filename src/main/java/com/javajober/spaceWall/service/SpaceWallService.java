@@ -59,6 +59,7 @@ import com.javajober.blocks.wallInfoBlock.domain.WallInfoBlock;
 import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringSaveRequest;
 import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringUpdateRequest;
 import com.javajober.blocks.wallInfoBlock.repository.WallInfoBlockRepository;
+import com.javajober.spaceWall.strategy.BlockJsonHandler;
 import com.javajober.spaceWall.strategy.BlockStrategyFactory;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
@@ -86,8 +87,8 @@ public class SpaceWallService {
 	private final ThemeSettingRepository themeSettingRepository;
 	private final MemberRepository memberRepository;
 	private final AddSpaceRepository addSpaceRepository;
-
 	private final BlockStrategyFactory blockStrategyFactory;
+	private final BlockJsonHandler blockJsonHandler;
 
 	public SpaceWallService(final SpaceWallRepository spaceWallRepository, final SNSBlockRepository snsBlockRepository,
 							final FreeBlockRepository freeBlockRepository, final TemplateBlockRepository templateBlockRepository,
@@ -95,7 +96,8 @@ public class SpaceWallService {
 							final ListBlockRepository listBlockRepository, final StyleSettingRepository styleSettingRepository,
 							final BackgroundSettingRepository backgroundSettingRepository, final BlockSettingRepository blockSettingRepository,
 							final ThemeSettingRepository themeSettingRepository, final MemberRepository memberRepository,
-							final AddSpaceRepository addSpaceRepository, final BlockStrategyFactory blockStrategyFactory) {
+							final AddSpaceRepository addSpaceRepository, final BlockStrategyFactory blockStrategyFactory,
+							final BlockJsonHandler blockJsonHandler) {
 
 		this.spaceWallRepository = spaceWallRepository;
 		this.snsBlockRepository = snsBlockRepository;
@@ -111,6 +113,7 @@ public class SpaceWallService {
 		this.memberRepository = memberRepository;
 		this.addSpaceRepository = addSpaceRepository;
 		this.blockStrategyFactory = blockStrategyFactory;
+		this.blockJsonHandler = blockJsonHandler;
 	}
 
 	@Transactional
@@ -122,15 +125,16 @@ public class SpaceWallService {
 
 		Long blocksPosition = 2L;
 		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
-		ObjectMapper jsonMapper = new ObjectMapper();
-		ArrayNode blockInfoArray = jsonMapper.createArrayNode();
+
+		ArrayNode blockInfoArray = blockJsonHandler.createArrayNode();
 		AtomicInteger i = new AtomicInteger();
 
 		WallInfoBlockStringSaveRequest wallInfoBlockStringSaveRequest = spaceWallRequest.getData().getWallInfoBlock();
 		Long wallInfoBlock = saveWallInfoBlock(wallInfoBlockStringSaveRequest);
 		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
 		Long blockStartPosition = 1L;
-		addBlockToJsonArray(blockInfoArray, jsonMapper, blockStartPosition, wallInfoBlockType, wallInfoBlock);
+
+		blockJsonHandler.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlock);
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 
@@ -140,15 +144,15 @@ public class SpaceWallService {
 			String strategyName = blockType.getStrategyName();
 			MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
 
-			List<Long> blockIds = blockProcessingStrategy.saveBlocks(block.getSubData(), jsonMapper);
-			blockIds.forEach(blockId -> addBlockInfoToArray(blockInfoArray, jsonMapper, blockType, position, blockId, block));
+			List<Long> blockIds = blockProcessingStrategy.saveBlocks(block.getSubData());
+			blockIds.forEach(blockId -> blockJsonHandler.addBlockInfoToArray(blockInfoArray, position, blockId, block));
 		});
 
 		StyleSettingStringSaveRequest styleSettingStringSaveRequest = spaceWallRequest.getData().getStyleSetting();
 		Long styleSetting = saveStyleSetting(styleSettingStringSaveRequest);
 		String styleSettingString = "styleSetting";
 		Long stylePosition = blocksPositionCounter.getAndIncrement();
-		addBlockToJsonArray(blockInfoArray, jsonMapper, stylePosition, styleSettingString, styleSetting);
+		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSetting);
 
 		String blockInfoArrayAsString = blockInfoArray.toString();
 		String shareURL = spaceWallRequest.getData().getShareURL();
