@@ -5,27 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.javajober.blocks.styleSetting.backgroundSetting.dto.request.BackgroundSettingStringSaveRequest;
 import com.javajober.blocks.styleSetting.backgroundSetting.dto.request.BackgroundStringUpdateRequest;
-import com.javajober.blocks.styleSetting.blockSetting.dto.request.BlockSettingSaveRequest;
 import com.javajober.blocks.styleSetting.blockSetting.dto.request.BlockSettingUpdateRequest;
-import com.javajober.blocks.fileBlock.dto.request.FileBlockStringSaveRequest;
 import com.javajober.blocks.fileBlock.dto.request.FileBlockStringUpdateRequest;
 import com.javajober.blocks.freeBlock.dto.request.FreeBlockUpdateRequest;
 import com.javajober.blocks.listBlock.dto.request.ListBlockUpdateRequest;
 import com.javajober.blocks.snsBlock.domain.SNSType;
 import com.javajober.blocks.snsBlock.dto.request.SNSBlockUpdateRequest;
-import com.javajober.blocks.styleSetting.themeSetting.dto.request.ThemeSettingSaveRequest;
 import com.javajober.space.repository.AddSpaceRepository;
 
 import com.javajober.space.domain.AddSpace;
 import com.javajober.blocks.fileBlock.domain.FileBlock;
 import com.javajober.blocks.fileBlock.repository.FileBlockRepository;
 import com.javajober.blocks.freeBlock.domain.FreeBlock;
-import com.javajober.blocks.freeBlock.dto.request.FreeBlockSaveRequest;
 import com.javajober.blocks.freeBlock.repository.FreeBlockRepository;
 import com.javajober.blocks.listBlock.domain.ListBlock;
-import com.javajober.blocks.listBlock.dto.request.ListBlockSaveRequest;
 import com.javajober.blocks.listBlock.repository.ListBlockRepository;
 import com.javajober.member.domain.Member;
 import com.javajober.member.repository.MemberRepository;
@@ -35,7 +29,6 @@ import com.javajober.spaceWall.dto.request.*;
 import com.javajober.spaceWall.dto.response.SpaceWallSaveResponse;
 import com.javajober.spaceWall.filedto.SpaceWallSaveRequest;
 import com.javajober.blocks.styleSetting.domain.StyleSetting;
-import com.javajober.blocks.styleSetting.dto.request.StyleSettingStringSaveRequest;
 import com.javajober.blocks.styleSetting.dto.request.StyleSettingStringUpdateRequest;
 import com.javajober.blocks.templateBlock.dto.request.TemplateBlockUpdateRequest;
 import com.javajober.blocks.styleSetting.themeSetting.domain.ThemeSetting;
@@ -45,7 +38,6 @@ import com.javajober.blocks.styleSetting.repository.StyleSettingRepository;
 import com.javajober.blocks.styleSetting.themeSetting.dto.request.ThemeSettingUpdateRequest;
 import com.javajober.blocks.styleSetting.themeSetting.repository.ThemeSettingRepository;
 import com.javajober.blocks.snsBlock.domain.SNSBlock;
-import com.javajober.blocks.snsBlock.dto.request.SNSBlockSaveRequest;
 import com.javajober.blocks.snsBlock.repository.SNSBlockRepository;
 import com.javajober.spaceWall.domain.BlockType;
 import com.javajober.spaceWall.domain.FlagType;
@@ -53,10 +45,8 @@ import com.javajober.spaceWall.domain.SpaceWall;
 import com.javajober.spaceWall.spaceWallCategory.domain.SpaceWallCategoryType;
 import com.javajober.spaceWall.repository.SpaceWallRepository;
 import com.javajober.blocks.templateBlock.domain.TemplateBlock;
-import com.javajober.blocks.templateBlock.dto.request.TemplateBlockSaveRequest;
 import com.javajober.blocks.templateBlock.repository.TemplateBlockRepository;
 import com.javajober.blocks.wallInfoBlock.domain.WallInfoBlock;
-import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringSaveRequest;
 import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringUpdateRequest;
 import com.javajober.blocks.wallInfoBlock.repository.WallInfoBlockRepository;
 import com.javajober.spaceWall.strategy.BlockJsonHandler;
@@ -69,7 +59,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -130,7 +119,6 @@ public class SpaceWallService {
 		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
 
 		ArrayNode blockInfoArray = blockJsonHandler.createArrayNode();
-		AtomicInteger i = new AtomicInteger();
 
 		String wallInfoBlockStrategyName = BlockType.WALL_INFO_BLOCK.getStrategyName();
 		FixBlockStrategy wallInfoBlockStrategy = blockStrategyFactory.findFixBlockStrategy(wallInfoBlockStrategyName);
@@ -156,12 +144,9 @@ public class SpaceWallService {
 		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
 		Long styleSettingBlockId = styleSettingBlockStrategy.saveBlocks(data);
 
-
-		StyleSettingStringSaveRequest styleSettingStringSaveRequest = spaceWallRequest.getData().getStyleSetting();
-		Long styleSetting = saveStyleSetting(styleSettingStringSaveRequest);
 		String styleSettingString = "styleSetting";
 		Long stylePosition = blocksPositionCounter.getAndIncrement();
-		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSetting);
+		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
 
 		String blockInfoArrayAsString = blockInfoArray.toString();
 		String shareURL = spaceWallRequest.getData().getShareURL();
@@ -240,81 +225,6 @@ public class SpaceWallService {
 		spaceWallId = spaceWallRepository.save(spaceWall).getId();
 
 		return new SpaceWallSaveResponse(spaceWallId);
-	}
-
-	private Long saveWallInfoBlock(final WallInfoBlockStringSaveRequest wallInfoBlockRequest) {
-
-		WallInfoBlock wallInfoBlock = WallInfoBlockStringSaveRequest.toEntity(wallInfoBlockRequest);
-
-		return wallInfoBlockRepository.save(wallInfoBlock).getId();
-	}
-
-	private List<Long> saveFreeBlocks(final List<FreeBlockSaveRequest> subData) {
-
-		List<Long> freeBlockIds = new ArrayList<>();
-		subData.forEach(block -> {
-			FreeBlock freeBlock = FreeBlockSaveRequest.toEntity(block);
-			freeBlockIds.add(freeBlockRepository.save(freeBlock).getId());
-		});
-		return freeBlockIds;
-	}
-
-	private List<Long> saveSnsBlocks(final List<SNSBlockSaveRequest> subData) {
-
-		List<Long> snsBlockIds = new ArrayList<>();
-
-		subData.forEach(block -> {
-			SNSBlock snsBlock = SNSBlockSaveRequest.toEntity(block);
-			snsBlockIds.add(snsBlockRepository.save(snsBlock).getId());
-		});
-		return snsBlockIds;
-	}
-
-	private List<Long> saveTemplateBlocks(final List<TemplateBlockSaveRequest> subData){
-
-		List<Long> templateBlockIds = new ArrayList<>();
-
-		subData.forEach(block -> {
-			TemplateBlock templateBlock = TemplateBlockSaveRequest.toEntity(block);
-			templateBlockIds.add(templateBlockRepository.save(templateBlock).getId());
-		});
-		return templateBlockIds;
-	}
-
-	private List<Long> saveFileBlocks(final List<FileBlockStringSaveRequest> subData) {
-
-		List<Long> fileBlockIds = new ArrayList<>();
-		subData.forEach(block -> {
-			FileBlock fileBlock = FileBlockStringSaveRequest.toEntity(block);
-			fileBlockIds.add(fileBlockRepository.save(fileBlock).getId());
-		});
-		return fileBlockIds;
-	}
-
-	private List<Long> saveListBlocks(final List<ListBlockSaveRequest> subData) {
-
-		List<Long> listBlockIds = new ArrayList<>();
-		subData.forEach(block -> {
-			ListBlock listBlock = ListBlockSaveRequest.toEntity(block);
-			listBlockIds.add(listBlockRepository.save(listBlock).getId());
-		});
-		return listBlockIds;
-	}
-
-	private Long saveStyleSetting(final StyleSettingStringSaveRequest request){
-
-		BackgroundSettingStringSaveRequest backgroundRequest = request.getBackgroundSetting();
-		BackgroundSetting backgroundSetting = backgroundSettingRepository.save(BackgroundSettingStringSaveRequest.toEntity(backgroundRequest));
-
-		BlockSettingSaveRequest blockSettingRequest = request.getBlockSetting();
-		BlockSetting blockSetting = blockSettingRepository.save(BlockSettingSaveRequest.toEntity(blockSettingRequest));
-
-		ThemeSettingSaveRequest themeSettingRequest = request.getThemeSetting();
-		ThemeSetting themeSetting = themeSettingRepository.save(ThemeSettingSaveRequest.toEntity(themeSettingRequest));
-
-		StyleSetting styleSetting = request.toEntity(backgroundSetting, blockSetting, themeSetting);
-
-		return styleSettingRepository.save(styleSetting).getId();
 	}
 
 	private Long updateWallInfoBlock(final WallInfoBlockStringUpdateRequest wallInfoBlockRequest) {
