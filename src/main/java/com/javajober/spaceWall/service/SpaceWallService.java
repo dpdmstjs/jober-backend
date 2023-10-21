@@ -61,6 +61,7 @@ import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringUpdateR
 import com.javajober.blocks.wallInfoBlock.repository.WallInfoBlockRepository;
 import com.javajober.spaceWall.strategy.BlockJsonHandler;
 import com.javajober.spaceWall.strategy.BlockStrategyFactory;
+import com.javajober.spaceWall.strategy.FixBlockStrategy;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
 import org.springframework.stereotype.Service;
@@ -119,6 +120,8 @@ public class SpaceWallService {
 	@Transactional
 	public SpaceWallSaveResponse save(final SpaceWallStringRequest spaceWallRequest, final FlagType flagType) {
 
+		DataStringSaveRequest data = spaceWallRequest.getData();
+
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
@@ -129,12 +132,12 @@ public class SpaceWallService {
 		ArrayNode blockInfoArray = blockJsonHandler.createArrayNode();
 		AtomicInteger i = new AtomicInteger();
 
-		WallInfoBlockStringSaveRequest wallInfoBlockStringSaveRequest = spaceWallRequest.getData().getWallInfoBlock();
-		Long wallInfoBlock = saveWallInfoBlock(wallInfoBlockStringSaveRequest);
+		String wallInfoBlockStrategyName = BlockType.WALL_INFO_BLOCK.getStrategyName();
+		FixBlockStrategy wallInfoBlockStrategy = blockStrategyFactory.findFixBlockStrategy(wallInfoBlockStrategyName);
+		Long wallInfoBlockId = wallInfoBlockStrategy.saveBlocks(data);
 		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
 		Long blockStartPosition = 1L;
-
-		blockJsonHandler.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlock);
+		blockJsonHandler.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlockId);
 
 		spaceWallRequest.getData().getBlocks().forEach(block -> {
 
@@ -147,6 +150,12 @@ public class SpaceWallService {
 			List<Long> blockIds = blockProcessingStrategy.saveBlocks(block.getSubData());
 			blockIds.forEach(blockId -> blockJsonHandler.addBlockInfoToArray(blockInfoArray, position, blockId, block));
 		});
+
+
+		String styleSettingBlockStrategyName = BlockType.STYLE_SETTING.getStrategyName();
+		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
+		Long styleSettingBlockId = styleSettingBlockStrategy.saveBlocks(data);
+
 
 		StyleSettingStringSaveRequest styleSettingStringSaveRequest = spaceWallRequest.getData().getStyleSetting();
 		Long styleSetting = saveStyleSetting(styleSettingStringSaveRequest);
