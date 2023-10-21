@@ -109,14 +109,12 @@ public class SpaceWallService {
 	@Transactional
 	public SpaceWallSaveResponse save(final SpaceWallStringRequest spaceWallRequest, final FlagType flagType) {
 
-		DataStringSaveRequest data = spaceWallRequest.getData();
-
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
 		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getSpaceId());
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
 
+		DataStringSaveRequest data = spaceWallRequest.getData();
 		ArrayNode blockInfoArray = blockJsonHandler.createArrayNode();
-
 		processWallInfoBlock(data, blockInfoArray);
 
 		Long blocksPosition = 2L;
@@ -158,7 +156,7 @@ public class SpaceWallService {
 		String styleSettingBlockStrategyName = BlockType.STYLE_SETTING.getStrategyName();
 		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
 		Long styleSettingBlockId = styleSettingBlockStrategy.saveBlocks(data);
-		String styleSettingString = "styleSetting";
+		String styleSettingString = BlockType.STYLE_SETTING.getEngTitle();
 		Long stylePosition = blocksPositionCounter.getAndIncrement();
 		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
 	}
