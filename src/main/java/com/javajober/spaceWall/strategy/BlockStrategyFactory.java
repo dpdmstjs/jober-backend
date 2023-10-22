@@ -42,7 +42,6 @@ public class BlockStrategyFactory {
 
 		Map<String, FixBlockStrategy>  strategies = new HashMap<>();
 
-
 		StrategySet.forEach(
 			strategy -> strategies.put(strategy.getStrategyName(), strategy));
 
