@@ -134,11 +134,8 @@ public class SpaceWallService {
 
 		processStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
 
-		String blockInfoArrayAsString = blockInfoArray.toString();
 		String shareURL = spaceWallRequest.getData().getShareURL();
-		SpaceWall spaceWall = SpaceWallSaveRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
-
-		Long spaceWallId = spaceWallRepository.save(spaceWall).getId();
+		Long spaceWallId = saveSpaceWall(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArray);
 
 		return new SpaceWallSaveResponse(spaceWallId);
 	}
@@ -159,6 +156,14 @@ public class SpaceWallService {
 		String styleSettingString = BlockType.STYLE_SETTING.getEngTitle();
 		Long stylePosition = blocksPositionCounter.getAndIncrement();
 		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
+	}
+
+	private Long saveSpaceWall(SpaceWallCategoryType spaceWallCategoryType, Member member, AddSpace addSpace, String shareURL, FlagType flagType, ArrayNode blockInfoArray) {
+
+		String blockInfoArrayAsString = blockInfoArray.toString();
+		SpaceWall spaceWall = SpaceWallSaveRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
+
+		return spaceWallRepository.save(spaceWall).getId();
 	}
 
 	@Transactional
