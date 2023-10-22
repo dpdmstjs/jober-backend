@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.javajober.blocks.templateBlock.domain.TemplateBlock;
 import com.javajober.blocks.templateBlock.dto.request.TemplateBlockSaveRequest;
 import com.javajober.blocks.templateBlock.repository.TemplateBlockRepository;
-import com.javajober.spaceWall.strategy.BlockJsonHandler;
+import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyName;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
@@ -16,11 +16,11 @@ import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 @Component
 public class TemplateBlockStrategy implements MoveBlockStrategy {
 
-	private final BlockJsonHandler blockJsonHandler;
+	private final BlockJsonProcessor blockJsonProcessor;
 	private final TemplateBlockRepository templateBlockRepository;
 
-	public TemplateBlockStrategy(final BlockJsonHandler blockJsonHandler, final TemplateBlockRepository templateBlockRepository) {
-		this.blockJsonHandler = blockJsonHandler;
+	public TemplateBlockStrategy(final BlockJsonProcessor blockJsonProcessor, final TemplateBlockRepository templateBlockRepository) {
+		this.blockJsonProcessor = blockJsonProcessor;
 		this.templateBlockRepository = templateBlockRepository;
 	}
 
@@ -30,7 +30,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 		List<Long> templateBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
-			TemplateBlockSaveRequest request = blockJsonHandler.convertValue(block, TemplateBlockSaveRequest.class);
+			TemplateBlockSaveRequest request = blockJsonProcessor.convertValue(block, TemplateBlockSaveRequest.class);
 			TemplateBlock templateBlock = TemplateBlockSaveRequest.toEntity(request);
 			templateBlockIds.add(templateBlockRepository.save(templateBlock).getId());
 		});

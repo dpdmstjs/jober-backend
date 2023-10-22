@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.javajober.spaceWall.dto.request.BlockSaveRequest;
 
 @Component
-public class BlockJsonHandler {
+public class BlockJsonProcessor {
 	private final ObjectMapper jsonMapper;
 
-	public BlockJsonHandler(final ObjectMapper jsonMapper) {
+	public BlockJsonProcessor(final ObjectMapper jsonMapper) {
 		this.jsonMapper = jsonMapper;
 	}
 

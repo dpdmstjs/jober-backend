@@ -8,18 +8,18 @@ import org.springframework.stereotype.Component;
 import com.javajober.blocks.fileBlock.domain.FileBlock;
 import com.javajober.blocks.fileBlock.dto.request.FileBlockStringSaveRequest;
 import com.javajober.blocks.fileBlock.repository.FileBlockRepository;
-import com.javajober.spaceWall.strategy.BlockJsonHandler;
+import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyName;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
 @Component
 public class FileBlockStrategy implements MoveBlockStrategy {
 
-	private final BlockJsonHandler blockJsonHandler;
+	private final BlockJsonProcessor blockJsonProcessor;
 	private final FileBlockRepository fileBlockRepository;
 
-	public FileBlockStrategy(BlockJsonHandler blockJsonHandler, FileBlockRepository fileBlockRepository) {
-		this.blockJsonHandler = blockJsonHandler;
+	public FileBlockStrategy(BlockJsonProcessor blockJsonProcessor, FileBlockRepository fileBlockRepository) {
+		this.blockJsonProcessor = blockJsonProcessor;
 		this.fileBlockRepository = fileBlockRepository;
 	}
 
@@ -29,7 +29,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 		List<Long> fileBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
-			FileBlockStringSaveRequest request = blockJsonHandler.convertValue(block, FileBlockStringSaveRequest.class);
+			FileBlockStringSaveRequest request = blockJsonProcessor.convertValue(block, FileBlockStringSaveRequest.class);
 			FileBlock fileBlock = FileBlockStringSaveRequest.toEntity(request);
 			fileBlockIds.add(fileBlockRepository.save(fileBlock).getId());
 		});

@@ -49,7 +49,7 @@ import com.javajober.blocks.templateBlock.repository.TemplateBlockRepository;
 import com.javajober.blocks.wallInfoBlock.domain.WallInfoBlock;
 import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringUpdateRequest;
 import com.javajober.blocks.wallInfoBlock.repository.WallInfoBlockRepository;
-import com.javajober.spaceWall.strategy.BlockJsonHandler;
+import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyFactory;
 import com.javajober.spaceWall.strategy.FixBlockStrategy;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
@@ -78,7 +78,7 @@ public class SpaceWallService {
 	private final MemberRepository memberRepository;
 	private final AddSpaceRepository addSpaceRepository;
 	private final BlockStrategyFactory blockStrategyFactory;
-	private final BlockJsonHandler blockJsonHandler;
+	private final BlockJsonProcessor blockJsonProcessor;
 
 	public SpaceWallService(final SpaceWallRepository spaceWallRepository, final SNSBlockRepository snsBlockRepository,
 							final FreeBlockRepository freeBlockRepository, final TemplateBlockRepository templateBlockRepository,
@@ -87,7 +87,7 @@ public class SpaceWallService {
 							final BackgroundSettingRepository backgroundSettingRepository, final BlockSettingRepository blockSettingRepository,
 							final ThemeSettingRepository themeSettingRepository, final MemberRepository memberRepository,
 							final AddSpaceRepository addSpaceRepository, final BlockStrategyFactory blockStrategyFactory,
-							final BlockJsonHandler blockJsonHandler) {
+							final BlockJsonProcessor blockJsonProcessor) {
 
 		this.spaceWallRepository = spaceWallRepository;
 		this.snsBlockRepository = snsBlockRepository;
@@ -103,7 +103,7 @@ public class SpaceWallService {
 		this.memberRepository = memberRepository;
 		this.addSpaceRepository = addSpaceRepository;
 		this.blockStrategyFactory = blockStrategyFactory;
-		this.blockJsonHandler = blockJsonHandler;
+		this.blockJsonProcessor = blockJsonProcessor;
 	}
 
 	@Transactional
@@ -114,7 +114,7 @@ public class SpaceWallService {
 		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
 
 		DataStringSaveRequest data = spaceWallRequest.getData();
-		ArrayNode blockInfoArray = blockJsonHandler.createArrayNode();
+		ArrayNode blockInfoArray = blockJsonProcessor.createArrayNode();
 		processWallInfoBlock(data, blockInfoArray);
 
 		Long blocksPosition = 2L;
@@ -129,7 +129,7 @@ public class SpaceWallService {
 			MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
 
 			List<Long> blockIds = blockProcessingStrategy.saveBlocks(block.getSubData());
-			blockIds.forEach(blockId -> blockJsonHandler.addBlockInfoToArray(blockInfoArray, position, blockId, block));
+			blockIds.forEach(blockId -> blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, blockId, block));
 		});
 
 		processStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
@@ -146,7 +146,7 @@ public class SpaceWallService {
 		Long wallInfoBlockId = wallInfoBlockStrategy.saveBlocks(data);
 		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
 		Long blockStartPosition = 1L;
-		blockJsonHandler.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlockId);
+		blockJsonProcessor.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlockId);
 	}
 
 	private void processStyleSettingBlock(DataStringSaveRequest data, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
@@ -155,7 +155,7 @@ public class SpaceWallService {
 		Long styleSettingBlockId = styleSettingBlockStrategy.saveBlocks(data);
 		String styleSettingString = BlockType.STYLE_SETTING.getEngTitle();
 		Long stylePosition = blocksPositionCounter.getAndIncrement();
-		blockJsonHandler.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
+		blockJsonProcessor.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
 	}
 
 	private Long saveSpaceWall(SpaceWallCategoryType spaceWallCategoryType, Member member, AddSpace addSpace, String shareURL, FlagType flagType, ArrayNode blockInfoArray) {

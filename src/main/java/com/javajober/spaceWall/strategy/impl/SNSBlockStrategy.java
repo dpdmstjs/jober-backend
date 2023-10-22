@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.javajober.blocks.snsBlock.domain.SNSBlock;
 import com.javajober.blocks.snsBlock.dto.request.SNSBlockSaveRequest;
 import com.javajober.blocks.snsBlock.repository.SNSBlockRepository;
-import com.javajober.spaceWall.strategy.BlockJsonHandler;
+import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyName;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
@@ -18,11 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SNSBlockStrategy implements MoveBlockStrategy {
 
-	private final BlockJsonHandler blockJsonHandler;
+	private final BlockJsonProcessor blockJsonProcessor;
 	private final SNSBlockRepository snsBlockRepository;
 
-	public SNSBlockStrategy(final BlockJsonHandler blockJsonHandler, final SNSBlockRepository snsBlockRepository) {
-		this.blockJsonHandler = blockJsonHandler;
+	public SNSBlockStrategy(final BlockJsonProcessor blockJsonProcessor, final SNSBlockRepository snsBlockRepository) {
+		this.blockJsonProcessor = blockJsonProcessor;
 		this.snsBlockRepository = snsBlockRepository;
 	}
 
@@ -31,7 +31,7 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 		List<Long> snsBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
-			SNSBlockSaveRequest request = blockJsonHandler.convertValue(block, SNSBlockSaveRequest.class);
+			SNSBlockSaveRequest request = blockJsonProcessor.convertValue(block, SNSBlockSaveRequest.class);
 			SNSBlock snsBlock = SNSBlockSaveRequest.toEntity(request);
 			snsBlockIds.add(snsBlockRepository.save(snsBlock).getId());
 		});

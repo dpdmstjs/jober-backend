@@ -8,19 +8,19 @@ import org.springframework.stereotype.Component;
 import com.javajober.blocks.listBlock.domain.ListBlock;
 import com.javajober.blocks.listBlock.dto.request.ListBlockSaveRequest;
 import com.javajober.blocks.listBlock.repository.ListBlockRepository;
-import com.javajober.spaceWall.strategy.BlockJsonHandler;
+import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyName;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
 @Component
 public class ListBlockStrategy implements MoveBlockStrategy {
 
-	private final BlockJsonHandler blockJsonHandler;
+	private final BlockJsonProcessor blockJsonProcessor;
 	private final ListBlockRepository listBlockRepository;
 
 
-	public ListBlockStrategy(final BlockJsonHandler blockJsonHandler, final ListBlockRepository listBlockRepository) {
-		this.blockJsonHandler = blockJsonHandler;
+	public ListBlockStrategy(final BlockJsonProcessor blockJsonProcessor, final ListBlockRepository listBlockRepository) {
+		this.blockJsonProcessor = blockJsonProcessor;
 		this.listBlockRepository = listBlockRepository;
 	}
 
@@ -31,7 +31,7 @@ public class ListBlockStrategy implements MoveBlockStrategy {
 		List<Long> listBlockIds = new ArrayList<>();
 
 		subData.forEach(block -> {
-			ListBlockSaveRequest request = blockJsonHandler.convertValue(block, ListBlockSaveRequest.class);
+			ListBlockSaveRequest request = blockJsonProcessor.convertValue(block, ListBlockSaveRequest.class);
 			ListBlock listBlock = ListBlockSaveRequest.toEntity(request);
 			listBlockIds.add(listBlockRepository.save(listBlock).getId());
 		});
