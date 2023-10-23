@@ -31,7 +31,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(final List<Object> subData, final ArrayNode blockInfoArray, final Long position) {
+	public void saveBlocks(final List<?> subData, final ArrayNode blockInfoArray, final Long position) {
 
 		subData.forEach(block -> {
 			FileBlockStringSaveRequest request = blockJsonProcessor.convertValue(block, FileBlockStringSaveRequest.class);
