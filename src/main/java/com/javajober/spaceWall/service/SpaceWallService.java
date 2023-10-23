@@ -115,11 +115,9 @@ public class SpaceWallService {
 		Member member = memberRepository.findMember(memberId);
 
 		DataStringSaveRequest data = spaceWallRequest.getData();
-
 		AddSpace addSpace = addSpaceRepository.findAddSpace(data.getSpaceId());
 
 		validateSpaceOwnership(member, addSpace);
-
 		validateAddSpaceId(addSpace.getId());
 
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(data.getCategory());
@@ -127,15 +125,23 @@ public class SpaceWallService {
 		ArrayNode blockInfoArray = blockJsonProcessor.createArrayNode();
 
 		AtomicLong blocksPositionCounter = new AtomicLong(INITIAL_POSITION);
-
 		processWallInfoBlock(data, blockInfoArray, blocksPositionCounter);
 
-		processBlocks(data.getBlocks(), blockInfoArray, blocksPositionCounter);
+		List<BlockSaveRequest<?>> blocks = data.getBlocks();
+		blocks.forEach(block -> {
+
+			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
+			Long position = blocksPositionCounter.getAndIncrement();
+
+			String strategyName = blockType.getStrategyName();
+			MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
+
+			blockProcessingStrategy.saveBlocks(block.getSubData(), blockInfoArray, position);
+		});
 
 		processStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
 
 		String shareURL = spaceWallRequest.getData().getShareURL();
-
 		Long spaceWallId = saveSpaceWall(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArray);
 
 		return new SpaceWallSaveResponse(spaceWallId);
@@ -163,19 +169,6 @@ public class SpaceWallService {
 
 		Long wallInfoBlockPosition = blocksPositionCounter.getAndIncrement();
 		wallInfoBlockStrategy.saveBlocks(data, blockInfoArray, wallInfoBlockPosition);
-	}
-
-	private void processBlocks(List<BlockSaveRequest<?>> blocks, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
-		blocks.forEach(block -> {
-
-			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-			Long position = blocksPositionCounter.getAndIncrement();
-
-			String strategyName = blockType.getStrategyName();
-			MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
-
-			blockProcessingStrategy.saveBlocks(block.getSubData(), blockInfoArray, position);
-		});
 	}
 
 	private void processStyleSettingBlock(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
