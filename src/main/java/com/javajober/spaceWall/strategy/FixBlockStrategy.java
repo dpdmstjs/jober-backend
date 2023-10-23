@@ -8,9 +8,9 @@ import com.javajober.spaceWall.dto.request.DataStringSaveRequest;
 import java.util.List;
 
 public interface FixBlockStrategy {
-	void saveBlocks(final DataStringSaveRequest data, ArrayNode blockInfoArray, Long position);
+	void saveBlocks(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final Long position);
 
-	CommonResponse createFixBlockDTO(List<JsonNode> fixBlocks);
+	CommonResponse createFixBlockDTO(final List<JsonNode> fixBlocks);
 
 	String getStrategyName();
 }
