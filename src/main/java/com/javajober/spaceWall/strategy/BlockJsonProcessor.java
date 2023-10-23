@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.javajober.spaceWall.dto.request.BlockSaveRequest;
 
 import java.util.Comparator;
 import java.util.List;
@@ -33,30 +32,14 @@ public class BlockJsonProcessor {
 		return jsonMapper.convertValue(fromValue, toValueType);
 	}
 
-	public void addBlockInfoToArray(final ArrayNode blockInfoArray, final Long position, final Long blockId, final BlockSaveRequest block) {
-
-		String currentBlockTypeTitle = block.getBlockType();
-		String blockUUID = block.getBlockUUID();
-
-		ObjectNode blockInfoObject = jsonMapper.createObjectNode();
-
-		blockInfoObject.put("position", position);
-		blockInfoObject.put("block_type", currentBlockTypeTitle);
-		blockInfoObject.put("block_id", blockId);
-		blockInfoObject.put("block_uuid", blockUUID);
-
-		blockInfoArray.add(blockInfoObject);
-	}
-
-
-	public void addBlockToJsonArray(final ArrayNode blockInfoArray, final Long position, final String blockType, final Long blockId) {
+	public void addBlockInfoToArray(final ArrayNode blockInfoArray, final Long position, final String blockType, final Long blockId, final String blockUUID) {
 
 		ObjectNode blockInfoObject = jsonMapper.createObjectNode();
 
 		blockInfoObject.put("position", position);
 		blockInfoObject.put("block_type", blockType);
 		blockInfoObject.put("block_id", blockId);
-		blockInfoObject.put("block_uuid", "");
+		blockInfoObject.put("block_uuid", blockUUID);
 
 		blockInfoArray.add(blockInfoObject);
 	}
