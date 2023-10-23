@@ -12,6 +12,7 @@ import com.javajober.blocks.freeBlock.dto.request.FreeBlockUpdateRequest;
 import com.javajober.blocks.listBlock.dto.request.ListBlockUpdateRequest;
 import com.javajober.blocks.snsBlock.domain.SNSType;
 import com.javajober.blocks.snsBlock.dto.request.SNSBlockUpdateRequest;
+import com.javajober.core.security.JwtTokenizer;
 import com.javajober.space.repository.AddSpaceRepository;
 
 import com.javajober.space.domain.AddSpace;
@@ -107,20 +108,23 @@ public class SpaceWallService {
 	}
 
 	@Transactional
-	public SpaceWallSaveResponse save(final SpaceWallStringRequest spaceWallRequest, final FlagType flagType) {
+	public SpaceWallSaveResponse save(final Long memberId, final SpaceWallStringRequest spaceWallRequest, final FlagType flagType) {
 
-		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(spaceWallRequest.getData().getCategory());
-		AddSpace addSpace = addSpaceRepository.findAddSpace(spaceWallRequest.getData().getSpaceId());
-		Member member = memberRepository.findMember(spaceWallRequest.getData().getMemberId());
+		Member member = memberRepository.findMember(memberId);
 
 		DataStringSaveRequest data = spaceWallRequest.getData();
+		AddSpace addSpace = addSpaceRepository.findAddSpace(data.getSpaceId());
+
+		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(data.getCategory());
+
 		ArrayNode blockInfoArray = blockJsonProcessor.createArrayNode();
 		processWallInfoBlock(data, blockInfoArray);
 
 		Long blocksPosition = 2L;
 		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
 
-		spaceWallRequest.getData().getBlocks().forEach(block -> {
+		List<BlockSaveRequest> blocks = data.getBlocks();
+		blocks.forEach(block -> {
 
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
 			Long position = blocksPositionCounter.getAndIncrement();

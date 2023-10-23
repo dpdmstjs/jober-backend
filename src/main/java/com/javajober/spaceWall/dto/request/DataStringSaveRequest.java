@@ -10,7 +10,6 @@ import java.util.List;
 public class DataStringSaveRequest {
 
     private String category;
-    private Long memberId;
     private Long spaceId;
     private String shareURL;
     private WallInfoBlockStringSaveRequest wallInfoBlock;
@@ -20,11 +19,10 @@ public class DataStringSaveRequest {
     private DataStringSaveRequest() {
     }
 
-    public DataStringSaveRequest(final String category, final Long memberId, Long spaceId, final String shareURL,
+    public DataStringSaveRequest(final String category, Long spaceId, final String shareURL,
                                  final WallInfoBlockStringSaveRequest wallInfoBlock, final List<BlockSaveRequest> blocks,
                                  final StyleSettingStringSaveRequest styleSetting) {
         this.category = category;
-        this.memberId = memberId;
         this.spaceId = spaceId;
         this.shareURL = shareURL;
         this.wallInfoBlock = wallInfoBlock;
