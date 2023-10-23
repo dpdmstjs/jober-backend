@@ -12,7 +12,6 @@ import com.javajober.blocks.freeBlock.dto.request.FreeBlockUpdateRequest;
 import com.javajober.blocks.listBlock.dto.request.ListBlockUpdateRequest;
 import com.javajober.blocks.snsBlock.domain.SNSType;
 import com.javajober.blocks.snsBlock.dto.request.SNSBlockUpdateRequest;
-import com.javajober.core.security.JwtTokenizer;
 import com.javajober.space.repository.AddSpaceRepository;
 
 import com.javajober.space.domain.AddSpace;
@@ -65,6 +64,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class SpaceWallService {
 
+	private static final Long INITIAL_POSITION = 1L;
 	private final SpaceWallRepository spaceWallRepository;
 	private final SNSBlockRepository snsBlockRepository;
 	private final FreeBlockRepository freeBlockRepository;
@@ -118,10 +118,9 @@ public class SpaceWallService {
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(data.getCategory());
 
 		ArrayNode blockInfoArray = blockJsonProcessor.createArrayNode();
-		processWallInfoBlock(data, blockInfoArray);
 
-		Long blocksPosition = 2L;
-		AtomicLong blocksPositionCounter = new AtomicLong(blocksPosition);
+		AtomicLong blocksPositionCounter = new AtomicLong(INITIAL_POSITION);
+		processWallInfoBlock(data, blockInfoArray, blocksPositionCounter);
 
 		List<BlockSaveRequest> blocks = data.getBlocks();
 		blocks.forEach(block -> {
@@ -132,8 +131,7 @@ public class SpaceWallService {
 			String strategyName = blockType.getStrategyName();
 			MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
 
-			List<Long> blockIds = blockProcessingStrategy.saveBlocks(block.getSubData());
-			blockIds.forEach(blockId -> blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, blockId, block));
+			blockProcessingStrategy.saveBlocks(block.getSubData(), blockInfoArray, position);
 		});
 
 		processStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
@@ -144,22 +142,21 @@ public class SpaceWallService {
 		return new SpaceWallSaveResponse(spaceWallId);
 	}
 
-	private void processWallInfoBlock(DataStringSaveRequest data, ArrayNode blockInfoArray) {
+	private void processWallInfoBlock(DataStringSaveRequest data, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
 		String wallInfoBlockStrategyName = BlockType.WALL_INFO_BLOCK.getStrategyName();
 		FixBlockStrategy wallInfoBlockStrategy = blockStrategyFactory.findFixBlockStrategy(wallInfoBlockStrategyName);
-		Long wallInfoBlockId = wallInfoBlockStrategy.saveBlocks(data);
-		String wallInfoBlockType  = BlockType.WALL_INFO_BLOCK.getEngTitle();
-		Long blockStartPosition = 1L;
-		blockJsonProcessor.addBlockToJsonArray(blockInfoArray, blockStartPosition, wallInfoBlockType, wallInfoBlockId);
+
+		Long wallInfoBlockPosition = blocksPositionCounter.getAndIncrement();
+		wallInfoBlockStrategy.saveBlocks(data, blockInfoArray, wallInfoBlockPosition);
 	}
 
 	private void processStyleSettingBlock(DataStringSaveRequest data, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
+
 		String styleSettingBlockStrategyName = BlockType.STYLE_SETTING.getStrategyName();
 		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
-		Long styleSettingBlockId = styleSettingBlockStrategy.saveBlocks(data);
-		String styleSettingString = BlockType.STYLE_SETTING.getEngTitle();
-		Long stylePosition = blocksPositionCounter.getAndIncrement();
-		blockJsonProcessor.addBlockToJsonArray(blockInfoArray, stylePosition, styleSettingString, styleSettingBlockId);
+
+		Long styleSettingPosition = blocksPositionCounter.getAndIncrement();
+		styleSettingBlockStrategy.saveBlocks(data, blockInfoArray, styleSettingPosition);
 	}
 
 	private Long saveSpaceWall(SpaceWallCategoryType spaceWallCategoryType, Member member, AddSpace addSpace, String shareURL, FlagType flagType, ArrayNode blockInfoArray) {
