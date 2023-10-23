@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class BlockJsonProcessor {
 	private final ObjectMapper jsonMapper;
@@ -29,7 +32,13 @@ public class BlockJsonProcessor {
 	}
 
 	public <T> T convertValue(final Object fromValue, final Class<T> toValueType) {
-		return jsonMapper.convertValue(fromValue, toValueType);
+		try {
+			return jsonMapper.convertValue(fromValue, toValueType);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = String.format("'%s' 값을 '%s' 타입으로 변환하는데 실패했습니다. 오류: %s", fromValue, toValueType.getName(), e.getMessage());
+			log.error(errorMessage);
+			throw new ApplicationException(ApiStatus.FAIL, "데이터를 처리하는 중 문제가 발생했습니다.");
+		}
 	}
 
 	public void addBlockInfoToArray(final ArrayNode blockInfoArray, final Long position, final String blockType, final Long blockId, final String blockUUID) {
