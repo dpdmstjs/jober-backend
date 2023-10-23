@@ -117,6 +117,7 @@ public class SpaceWallService {
 		DataStringSaveRequest data = spaceWallRequest.getData();
 		AddSpace addSpace = addSpaceRepository.findAddSpace(data.getSpaceId());
 
+		validateSpaceOwnership(member, addSpace);
 		validateAddSpaceId(addSpace.getId());
 
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(data.getCategory());
@@ -144,6 +145,15 @@ public class SpaceWallService {
 		Long spaceWallId = saveSpaceWall(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArray);
 
 		return new SpaceWallSaveResponse(spaceWallId);
+	}
+
+	private void validateSpaceOwnership(Member member, AddSpace addSpace) {
+		Long memberId = member.getId();
+		Long spaceId = addSpace.getMember().getId();
+
+		if (memberId.equals(spaceId)) {
+			throw new ApplicationException(ApiStatus.INVALID_DATA, "사용자의 스페이스를 찾을 수가 없습니다.");
+		}
 	}
 
 	private void validateAddSpaceId (final Long spaceId) {
