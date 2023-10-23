@@ -31,7 +31,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(final List<Object> subData, final ArrayNode blockInfoArray, final Long position) {
+	public void saveBlocks(final List<?> subData, final ArrayNode blockInfoArray, final Long position) {
 
 		subData.forEach(block -> {
 			TemplateBlockSaveRequest request = blockJsonProcessor.convertValue(block, TemplateBlockSaveRequest.class);

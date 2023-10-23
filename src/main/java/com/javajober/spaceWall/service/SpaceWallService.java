@@ -127,7 +127,7 @@ public class SpaceWallService {
 		AtomicLong blocksPositionCounter = new AtomicLong(INITIAL_POSITION);
 		processWallInfoBlock(data, blockInfoArray, blocksPositionCounter);
 
-		List<BlockSaveRequest> blocks = data.getBlocks();
+		List<BlockSaveRequest<?>> blocks = data.getBlocks();
 		blocks.forEach(block -> {
 
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
@@ -151,7 +151,7 @@ public class SpaceWallService {
 		Long memberId = member.getId();
 		Long spaceId = addSpace.getMember().getId();
 
-		if (memberId.equals(spaceId)) {
+		if (!memberId.equals(spaceId)) {
 			throw new ApplicationException(ApiStatus.INVALID_DATA, "사용자의 스페이스를 찾을 수가 없습니다.");
 		}
 	}

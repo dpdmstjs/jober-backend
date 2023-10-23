@@ -7,7 +7,7 @@ import com.javajober.core.util.response.CommonResponse;
 import java.util.List;
 
 public interface MoveBlockStrategy {
-	void saveBlocks(final List<Object> subData, final ArrayNode blockInfoArray, final Long position);
+	void saveBlocks(final List<?> subData, final ArrayNode blockInfoArray, final Long position);
 
 	List<CommonResponse> createMoveBlockDTO(List<JsonNode> blocksWithSamePosition);
 
