@@ -12,6 +12,8 @@ import com.javajober.blocks.freeBlock.dto.request.FreeBlockUpdateRequest;
 import com.javajober.blocks.listBlock.dto.request.ListBlockUpdateRequest;
 import com.javajober.blocks.snsBlock.domain.SNSType;
 import com.javajober.blocks.snsBlock.dto.request.SNSBlockUpdateRequest;
+import com.javajober.core.exception.ApiStatus;
+import com.javajober.core.exception.ApplicationException;
 import com.javajober.space.repository.AddSpaceRepository;
 
 import com.javajober.space.domain.AddSpace;
@@ -115,6 +117,8 @@ public class SpaceWallService {
 		DataStringSaveRequest data = spaceWallRequest.getData();
 		AddSpace addSpace = addSpaceRepository.findAddSpace(data.getSpaceId());
 
+		validateAddSpaceId(addSpace.getId());
+
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(data.getCategory());
 
 		ArrayNode blockInfoArray = blockJsonProcessor.createArrayNode();
@@ -142,7 +146,14 @@ public class SpaceWallService {
 		return new SpaceWallSaveResponse(spaceWallId);
 	}
 
-	private void processWallInfoBlock(DataStringSaveRequest data, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
+	private void validateAddSpaceId (final Long spaceId) {
+		boolean existsSpaceId = spaceWallRepository.existsByAddSpaceId(spaceId);
+		if (existsSpaceId) {
+			throw new ApplicationException(ApiStatus.INVALID_DATA, "스페이스 하나당 공유페이지 하나만 생성 가능합니다.");
+		}
+	}
+
+	private void processWallInfoBlock(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
 		String wallInfoBlockStrategyName = BlockType.WALL_INFO_BLOCK.getStrategyName();
 		FixBlockStrategy wallInfoBlockStrategy = blockStrategyFactory.findFixBlockStrategy(wallInfoBlockStrategyName);
 
@@ -150,7 +161,7 @@ public class SpaceWallService {
 		wallInfoBlockStrategy.saveBlocks(data, blockInfoArray, wallInfoBlockPosition);
 	}
 
-	private void processStyleSettingBlock(DataStringSaveRequest data, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
+	private void processStyleSettingBlock(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
 
 		String styleSettingBlockStrategyName = BlockType.STYLE_SETTING.getStrategyName();
 		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
@@ -159,7 +170,7 @@ public class SpaceWallService {
 		styleSettingBlockStrategy.saveBlocks(data, blockInfoArray, styleSettingPosition);
 	}
 
-	private Long saveSpaceWall(SpaceWallCategoryType spaceWallCategoryType, Member member, AddSpace addSpace, String shareURL, FlagType flagType, ArrayNode blockInfoArray) {
+	private Long saveSpaceWall(final SpaceWallCategoryType spaceWallCategoryType, final Member member, final AddSpace addSpace, final String shareURL, final FlagType flagType, final ArrayNode blockInfoArray) {
 
 		String blockInfoArrayAsString = blockInfoArray.toString();
 		SpaceWall spaceWall = SpaceWallSaveRequest.toEntity(spaceWallCategoryType, member, addSpace, shareURL, flagType, blockInfoArrayAsString);
