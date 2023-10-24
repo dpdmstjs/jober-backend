@@ -55,6 +55,14 @@ public class MemberService {
 		member.setPassword(passwordEncoder.encode(memberSignupRequest.getPassword()));
 		Member saveMember = memberRepository.save(member);
 
+		Set<AddSpace> spaces = initializeNewMemberSpaces(member);
+		addSpaceRepository.saveAll(spaces);
+
+		return new MemberSignupResponse(saveMember);
+	}
+
+	private Set<AddSpace> initializeNewMemberSpaces(Member member) {
+
 		SpaceSaveRequest personalSpaceRequest = createSpaceSaveRequest(member.getMemberName(), SpaceType.PERSONAL.getEngTitle(), member.getMemberName());
 		SpaceSaveRequest organizationSpaceRequest = createSpaceSaveRequest(member.getMemberName(), SpaceType.ORGANIZATION.getEngTitle(), "임시회사명");
 
@@ -66,9 +74,7 @@ public class MemberService {
 		AddSpace organizationSpace = SpaceSaveRequest.toEntity(organizationSpaceRequest, member);
 		spaces.add(organizationSpace);
 
-		addSpaceRepository.saveAll(spaces);
-
-		return new MemberSignupResponse(saveMember);
+		return spaces;
 	}
 
 	private SpaceSaveRequest createSpaceSaveRequest(String spaceTitle, String spaceType, String representativeName) {
