@@ -19,7 +19,6 @@ import com.javajober.space.repository.AddSpaceRepository;
 import com.javajober.space.domain.AddSpace;
 import com.javajober.blocks.fileBlock.domain.FileBlock;
 import com.javajober.blocks.fileBlock.repository.FileBlockRepository;
-import com.javajober.blocks.freeBlock.domain.FreeBlock;
 import com.javajober.blocks.freeBlock.repository.FreeBlockRepository;
 import com.javajober.blocks.listBlock.domain.ListBlock;
 import com.javajober.blocks.listBlock.repository.ListBlockRepository;
@@ -138,7 +137,7 @@ public class SpaceWallService {
 		return new SpaceWallSaveResponse(spaceWallId);
 	}
 
-	private void validateSpaceOwnership(Member member, AddSpace addSpace) {
+	private void validateSpaceOwnership(final Member member, final AddSpace addSpace) {
 		Long memberId = member.getId();
 		Long spaceId = addSpace.getMember().getId();
 
@@ -162,7 +161,7 @@ public class SpaceWallService {
 		wallInfoBlockStrategy.saveBlocks(data, blockInfoArray, wallInfoBlockPosition);
 	}
 
-	private void processBlocks(List<BlockSaveRequest<?>> blocks, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
+	private void processBlocks(final List<BlockSaveRequest<?>> blocks, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
 		blocks.forEach(block -> {
 
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
@@ -276,10 +275,10 @@ public class SpaceWallService {
 		List<Long> updatedFreeBlockIds = new ArrayList<>();
 		for (FreeBlockUpdateRequest updateRequest : subData) {
 			if(updateRequest.getFreeBlockId() == null ){
-				FreeBlock freeBlock = new FreeBlock(updateRequest.getFreeTitle(),updateRequest.getFreeContent());
+				com.javajober.blocks.freeBlock.domain.FreeBlock freeBlock = new com.javajober.blocks.freeBlock.domain.FreeBlock(updateRequest.getFreeTitle(),updateRequest.getFreeContent());
 				updatedFreeBlockIds.add(freeBlockRepository.save(freeBlock).getId());
 			}else {
-				FreeBlock freeBlock = freeBlockRepository.findFreeBlock(updateRequest.getFreeBlockId());
+				com.javajober.blocks.freeBlock.domain.FreeBlock freeBlock = freeBlockRepository.findFreeBlock(updateRequest.getFreeBlockId());
 				freeBlock.update(updateRequest);
 				updatedFreeBlockIds.add(freeBlockRepository.save(freeBlock).getId());
 			}
