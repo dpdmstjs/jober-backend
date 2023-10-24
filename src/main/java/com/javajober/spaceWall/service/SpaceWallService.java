@@ -128,16 +128,7 @@ public class SpaceWallService {
 		processWallInfoBlock(data, blockInfoArray, blocksPositionCounter);
 
 		List<BlockSaveRequest<?>> blocks = data.getBlocks();
-		blocks.forEach(block -> {
-
-			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-			Long position = blocksPositionCounter.getAndIncrement();
-
-			String strategyName = blockType.getStrategyName();
-			MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
-
-			blockProcessingStrategy.saveBlocks(block.getSubData(), blockInfoArray, position);
-		});
+		processBlocks(blocks, blockInfoArray, blocksPositionCounter);
 
 		processStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
 
@@ -169,6 +160,19 @@ public class SpaceWallService {
 
 		Long wallInfoBlockPosition = blocksPositionCounter.getAndIncrement();
 		wallInfoBlockStrategy.saveBlocks(data, blockInfoArray, wallInfoBlockPosition);
+	}
+
+	private void processBlocks(List<BlockSaveRequest<?>> blocks, ArrayNode blockInfoArray, AtomicLong blocksPositionCounter) {
+		blocks.forEach(block -> {
+
+			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
+			Long position = blocksPositionCounter.getAndIncrement();
+
+			String strategyName = blockType.getStrategyName();
+			MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
+
+			blockProcessingStrategy.saveBlocks(block.getSubData(), blockInfoArray, position);
+		});
 	}
 
 	private void processStyleSettingBlock(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
