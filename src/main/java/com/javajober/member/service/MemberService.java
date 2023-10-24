@@ -1,7 +1,9 @@
 package com.javajober.member.service;
 
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -19,6 +21,10 @@ import com.javajober.member.repository.MemberRepository;
 import com.javajober.core.refreshToken.repository.RefreshTokenRepository;
 import com.javajober.core.security.JwtTokenizer;
 import com.javajober.core.refreshToken.domain.RefreshToken;
+import com.javajober.space.domain.AddSpace;
+import com.javajober.space.domain.SpaceType;
+import com.javajober.space.dto.request.SpaceSaveRequest;
+import com.javajober.space.repository.AddSpaceRepository;
 
 @Service
 public class MemberService {
@@ -26,13 +32,15 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenizer jwtTokenizer;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final AddSpaceRepository addSpaceRepository;
 
 	public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,
-		RefreshTokenRepository refreshTokenRepository) {
+		RefreshTokenRepository refreshTokenRepository, AddSpaceRepository addSpaceRepository) {
 		this.memberRepository = memberRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtTokenizer = jwtTokenizer;
 		this.refreshTokenRepository = refreshTokenRepository;
+		this.addSpaceRepository = addSpaceRepository;
 	}
 
 	@Transactional
@@ -46,6 +54,30 @@ public class MemberService {
 		Member member = memberSignupRequest.toEntity(memberSignupRequest);
 		member.setPassword(passwordEncoder.encode(memberSignupRequest.getPassword()));
 		Member saveMember = memberRepository.save(member);
+
+		SpaceSaveRequest personalSpaceRequest  =
+			SpaceSaveRequest.builder()
+				.spaceTitle(member.getMemberName())
+				.spaceType(SpaceType.PERSONAL.getEngTitle())
+				.representativeName(member.getMemberName())
+				.build();
+
+		SpaceSaveRequest organizationSpaceRequest =
+			SpaceSaveRequest.builder()
+				.spaceTitle(member.getMemberName())
+				.spaceType(SpaceType.ORGANIZATION.getEngTitle())
+				.representativeName("임시회사명")
+				.build();
+
+		Set<AddSpace> spaces = new HashSet<>();
+
+		AddSpace personalSpace = SpaceSaveRequest.toEntity(personalSpaceRequest, member);
+		spaces.add(personalSpace);
+
+		AddSpace organizationSpace = SpaceSaveRequest.toEntity(organizationSpaceRequest, member);
+		spaces.add(organizationSpace);
+
+		addSpaceRepository.saveAll(spaces);
 
 		return new MemberSignupResponse(saveMember);
 	}
