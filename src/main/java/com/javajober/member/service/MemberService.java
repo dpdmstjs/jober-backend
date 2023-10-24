@@ -56,7 +56,7 @@ public class MemberService {
 		Member saveMember = memberRepository.save(member);
 
 		Set<AddSpace> spaces = initializeNewMemberSpaces(member);
-		addSpaceRepository.saveAll(spaces);
+		saveSpaces(spaces);
 
 		return new MemberSignupResponse(saveMember);
 	}
@@ -83,6 +83,10 @@ public class MemberService {
 				.spaceType(spaceType)
 				.representativeName(representativeName)
 				.build();
+	}
+
+	private void saveSpaces(Set<AddSpace> spaces) {
+		addSpaceRepository.saveAll(spaces);
 	}
 
 	@Transactional
