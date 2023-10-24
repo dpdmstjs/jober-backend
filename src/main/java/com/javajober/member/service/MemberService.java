@@ -55,19 +55,8 @@ public class MemberService {
 		member.setPassword(passwordEncoder.encode(memberSignupRequest.getPassword()));
 		Member saveMember = memberRepository.save(member);
 
-		SpaceSaveRequest personalSpaceRequest  =
-			SpaceSaveRequest.builder()
-				.spaceTitle(member.getMemberName())
-				.spaceType(SpaceType.PERSONAL.getEngTitle())
-				.representativeName(member.getMemberName())
-				.build();
-
-		SpaceSaveRequest organizationSpaceRequest =
-			SpaceSaveRequest.builder()
-				.spaceTitle(member.getMemberName())
-				.spaceType(SpaceType.ORGANIZATION.getEngTitle())
-				.representativeName("임시회사명")
-				.build();
+		SpaceSaveRequest personalSpaceRequest = createSpaceSaveRequest(member.getMemberName(), SpaceType.PERSONAL.getEngTitle(), member.getMemberName());
+		SpaceSaveRequest organizationSpaceRequest = createSpaceSaveRequest(member.getMemberName(), SpaceType.ORGANIZATION.getEngTitle(), "임시회사명");
 
 		Set<AddSpace> spaces = new HashSet<>();
 
@@ -80,6 +69,14 @@ public class MemberService {
 		addSpaceRepository.saveAll(spaces);
 
 		return new MemberSignupResponse(saveMember);
+	}
+
+	private SpaceSaveRequest createSpaceSaveRequest(String spaceTitle, String spaceType, String representativeName) {
+			return SpaceSaveRequest.builder()
+				.spaceTitle(spaceTitle)
+				.spaceType(spaceType)
+				.representativeName(representativeName)
+				.build();
 	}
 
 	@Transactional
