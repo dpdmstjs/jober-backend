@@ -26,11 +26,9 @@ public class SpaceWallTemporaryService {
 
         List<SpaceWall> spaceWalls = spaceWallRepository.findSpaceWallsOrThrow(memberId, addSpaceId);
 
-        spaceWalls.forEach(spaceWall -> {
-            if (spaceWall.getFlag().equals(FlagType.PENDING)) {
-                entityManager.remove(spaceWall);
-            }
-        });
+        spaceWalls.removeIf(spaceWall -> !spaceWall.getFlag().equals(FlagType.PENDING));
+
+        spaceWalls.forEach(entityManager::remove);
     }
 
     public SpaceWallTemporaryResponse hasSpaceWallTemporary(final Long memberId, final Long addSpaceId) {
