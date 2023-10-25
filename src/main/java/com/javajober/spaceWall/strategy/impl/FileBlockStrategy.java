@@ -38,16 +38,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position) {
-
-		// List<FileBlockStringSaveRequest> fileBlockStringSaveRequests = convertSubDataToFileBlockStringSaveRequests(block.getSubData());
-		//
-		// List<FileBlock> stringFileBlocks = convertToFileBlocks(fileBlockStringSaveRequests);
-		//
-		// List<FileBlock> stringSavedFileBlocks = saveAllFileBlock(stringFileBlocks);
-		//
-		// addToFileBlockInfoArray(stringSavedFileBlocks, blockInfoArray, position, block.getBlockType());
-
+	public void saveBlocks(BlockSaveRequest<?> block, ArrayNode blockInfoArray, Long position) {
 
 		List<FileBlockSaveRequest> fileBlockRequests = convertSubDataToFileBlockSaveRequests(block.getSubData());
 
@@ -77,6 +68,19 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 		return fileBlockSaveRequests.stream()
 			.map(fileBlockSaveRequest -> FileBlockSaveRequest.toEntity(fileBlockSaveRequest, fileName))
 			.collect(Collectors.toList());
+	}
+
+	@Override
+	public void saveStringBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position) {
+
+		List<FileBlockStringSaveRequest> fileBlockStringSaveRequests = convertSubDataToFileBlockStringSaveRequests(block.getSubData());
+
+		List<FileBlock> stringFileBlocks = convertToFileBlocks(fileBlockStringSaveRequests);
+
+		List<FileBlock> stringSavedFileBlocks = saveAllFileBlock(stringFileBlocks);
+
+		addToFileBlockInfoArray(stringSavedFileBlocks, blockInfoArray, position, block.getBlockType());
+
 	}
 
 	private List<FileBlockStringSaveRequest> convertSubDataToFileBlockStringSaveRequests(final List<?> subData) {
