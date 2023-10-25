@@ -13,7 +13,10 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface MoveBlockStrategy {
+	void saveStringBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position);
+
 	void saveBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position);
+
 
 	List<CommonResponse> createMoveBlockDTO(List<JsonNode> blocksWithSamePosition);
 
