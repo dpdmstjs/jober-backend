@@ -7,8 +7,11 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.javajober.blocks.fileBlock.dto.response.FileBlockResponse;
+import com.javajober.blocks.fileBlock.filedto.FileBlockSaveRequest;
+import com.javajober.core.util.file.FileImageService;
 import com.javajober.core.util.response.CommonResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.javajober.blocks.fileBlock.domain.FileBlock;
 import com.javajober.blocks.fileBlock.dto.request.FileBlockStringSaveRequest;
@@ -23,25 +26,59 @@ import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 public class FileBlockStrategy implements MoveBlockStrategy {
 	private final BlockJsonProcessor blockJsonProcessor;
 	private final FileBlockRepository fileBlockRepository;
+	private final FileImageService fileImageService;
+	private String currentFileName;
 
-	public FileBlockStrategy(BlockJsonProcessor blockJsonProcessor, FileBlockRepository fileBlockRepository) {
+	public FileBlockStrategy(BlockJsonProcessor blockJsonProcessor, FileBlockRepository fileBlockRepository,
+		FileImageService fileImageService) {
 		this.blockJsonProcessor = blockJsonProcessor;
 		this.fileBlockRepository = fileBlockRepository;
+		this.fileImageService = fileImageService;
 	}
 
 	@Override
 	public void saveBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position) {
 
-		List<FileBlockStringSaveRequest> fileBlockRequests = convertSubDataToFileBlockSaveRequests(block.getSubData());
+		// List<FileBlockStringSaveRequest> fileBlockStringSaveRequests = convertSubDataToFileBlockStringSaveRequests(block.getSubData());
+		//
+		// List<FileBlock> stringFileBlocks = convertToFileBlocks(fileBlockStringSaveRequests);
+		//
+		// List<FileBlock> stringSavedFileBlocks = saveAllFileBlock(stringFileBlocks);
+		//
+		// addToFileBlockInfoArray(stringSavedFileBlocks, blockInfoArray, position, block.getBlockType());
 
-		List<FileBlock> fileBlocks = convertToFileBlocks(fileBlockRequests);
+
+		List<FileBlockSaveRequest> fileBlockRequests = convertSubDataToFileBlockSaveRequests(block.getSubData());
+
+		List<FileBlock> fileBlocks = convertToFileBlocks(fileBlockRequests, currentFileName);
 
 		List<FileBlock> savedFileBlocks = saveAllFileBlock(fileBlocks);
 
 		addToFileBlockInfoArray(savedFileBlocks, blockInfoArray, position, block.getBlockType());
 	}
 
-	private List<FileBlockStringSaveRequest> convertSubDataToFileBlockSaveRequests(final List<?> subData) {
+	@Override
+	public void uploadFile (final MultipartFile file) {
+		currentFileName = fileImageService.uploadFile(file);
+	}
+
+	private List<FileBlockSaveRequest> convertSubDataToFileBlockSaveRequests(final List<?> subData) {
+		List<FileBlockSaveRequest> fileBlockRequests = new ArrayList<>();
+
+		subData.forEach(block -> {
+			FileBlockSaveRequest request = blockJsonProcessor.convertValue(block, FileBlockSaveRequest.class);
+			fileBlockRequests.add(request);
+		});
+		return fileBlockRequests;
+	}
+
+	private List<FileBlock> convertToFileBlocks(final List<FileBlockSaveRequest> fileBlockSaveRequests, String fileName) {
+		return fileBlockSaveRequests.stream()
+			.map(fileBlockSaveRequest -> FileBlockSaveRequest.toEntity(fileBlockSaveRequest, fileName))
+			.collect(Collectors.toList());
+	}
+
+	private List<FileBlockStringSaveRequest> convertSubDataToFileBlockStringSaveRequests(final List<?> subData) {
 		List<FileBlockStringSaveRequest> fileBlockRequests = new ArrayList<>();
 
 		subData.forEach(block -> {
