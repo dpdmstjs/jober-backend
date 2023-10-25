@@ -63,6 +63,7 @@ import com.javajober.blocks.wallInfoBlock.filedto.WallInfoBlockUpdateRequest;
 import com.javajober.blocks.wallInfoBlock.repository.WallInfoBlockRepository;
 import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyFactory;
+import com.javajober.spaceWall.strategy.BlockStrategyName;
 import com.javajober.spaceWall.strategy.FixBlockStrategy;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
@@ -200,7 +201,7 @@ public class FileUploadService {
             String strategyName = blockType.getStrategyName();
             MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
 
-            if ("FileBlockStrategy".equals(blockProcessingStrategy.getStrategyName())) {
+            if (BlockStrategyName.FileBlockStrategy.name().equals(blockProcessingStrategy.getStrategyName())) {
                 blockProcessingStrategy.uploadFile(files.get(fileIndexCounter.getAndIncrement()));
             }
 
