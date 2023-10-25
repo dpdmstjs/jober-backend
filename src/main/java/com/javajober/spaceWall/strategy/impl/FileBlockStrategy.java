@@ -2,6 +2,7 @@ package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,7 +28,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 	private final BlockJsonProcessor blockJsonProcessor;
 	private final FileBlockRepository fileBlockRepository;
 	private final FileImageService fileImageService;
-	private String currentFileName;
+	private final AtomicReference<String> currentFileName = new AtomicReference<>();
 
 	public FileBlockStrategy(BlockJsonProcessor blockJsonProcessor, FileBlockRepository fileBlockRepository,
 		FileImageService fileImageService) {
@@ -50,7 +51,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 
 		List<FileBlockSaveRequest> fileBlockRequests = convertSubDataToFileBlockSaveRequests(block.getSubData());
 
-		List<FileBlock> fileBlocks = convertToFileBlocks(fileBlockRequests, currentFileName);
+		List<FileBlock> fileBlocks = convertToFileBlocks(fileBlockRequests,  currentFileName.get());
 
 		List<FileBlock> savedFileBlocks = saveAllFileBlock(fileBlocks);
 
@@ -59,7 +60,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 
 	@Override
 	public void uploadFile (final MultipartFile file) {
-		currentFileName = fileImageService.uploadFile(file);
+		currentFileName.set(fileImageService.uploadFile(file));
 	}
 
 	private List<FileBlockSaveRequest> convertSubDataToFileBlockSaveRequests(final List<?> subData) {
