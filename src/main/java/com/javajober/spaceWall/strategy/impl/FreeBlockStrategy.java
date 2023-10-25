@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.javajober.blocks.freeBlock.repository.FreeBlockRepository;
 import com.javajober.spaceWall.domain.BlockType;
+import com.javajober.spaceWall.dto.request.BlockSaveRequest;
 import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyName;
 import com.javajober.spaceWall.strategy.MoveBlockStrategy;
@@ -30,15 +31,15 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(final List<?> subData, final ArrayNode blockInfoArray, final Long position) {
+	public void saveBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position) {
 
-		List<FreeBlockSaveRequest> freeBlockRequests = convertSubDataToFreeBlockSaveRequests(subData);
+		List<FreeBlockSaveRequest> freeBlockRequests = convertSubDataToFreeBlockSaveRequests(block.getSubData());
 
 		List<FreeBlock> freeBlocks = convertToFreeBlocks(freeBlockRequests);
 
 		List<FreeBlock> savedFreeBlocks = saveAllFreeBlock(freeBlocks);
 
-		addToFreeBlockInfoArray(savedFreeBlocks, blockInfoArray, position);
+		addToFreeBlockInfoArray(savedFreeBlocks, blockInfoArray, position, block.getBlockUUID());
 	}
 
 	private List<FreeBlockSaveRequest> convertSubDataToFreeBlockSaveRequests(final List<?> subData) {
@@ -61,9 +62,9 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 		return freeBlockRepository.saveAll(freeBlocks);
 	}
 
-	private void addToFreeBlockInfoArray (final List<FreeBlock> savedFreeBlocks, final ArrayNode blockInfoArray, final Long position) {
+	private void addToFreeBlockInfoArray (final List<FreeBlock> savedFreeBlocks, final ArrayNode blockInfoArray, final Long position, final String freeBlockUUID) {
 		savedFreeBlocks.forEach(savedFreeBlock ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, FREE_BLOCK, savedFreeBlock.getId(), "")
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, FREE_BLOCK, savedFreeBlock.getId(), freeBlockUUID)
 		);
 	}
 
