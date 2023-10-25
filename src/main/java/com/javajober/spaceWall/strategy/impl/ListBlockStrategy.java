@@ -22,7 +22,6 @@ import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 @Component
 public class ListBlockStrategy implements MoveBlockStrategy {
 
-	private static final String LIST_BLOCK = BlockType.LIST_BLOCK.getEngTitle();
 	private final BlockJsonProcessor blockJsonProcessor;
 	private final ListBlockRepository listBlockRepository;
 
@@ -65,7 +64,7 @@ public class ListBlockStrategy implements MoveBlockStrategy {
 
 	private void addToListBlockInfoArray (final List<ListBlock> savedListBlocks, final ArrayNode blockInfoArray, final Long position, final String listBlockUUID) {
 		savedListBlocks.forEach(savedListBlock ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, LIST_BLOCK, savedListBlock.getId(), listBlockUUID)
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.LIST_BLOCK, savedListBlock.getId(), listBlockUUID)
 		);
 	}
 

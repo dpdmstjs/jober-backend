@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SNSBlockStrategy implements MoveBlockStrategy {
 
-	private static final String SNS_BLOCK = BlockType.SNS_BLOCK.getEngTitle();
 	private final BlockJsonProcessor blockJsonProcessor;
 	private final SNSBlockRepository snsBlockRepository;
 
@@ -68,7 +67,7 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 
 	private void addToSNSBlockInfoArray (final List<SNSBlock> savedSNSBlocks, final ArrayNode blockInfoArray, final Long position, String snsBlockUUID) {
 		savedSNSBlocks.forEach(savedSNSBlock ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, SNS_BLOCK, savedSNSBlock.getId(), snsBlockUUID)
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.SNS_BLOCK, savedSNSBlock.getId(), snsBlockUUID)
 		);
 	}
 

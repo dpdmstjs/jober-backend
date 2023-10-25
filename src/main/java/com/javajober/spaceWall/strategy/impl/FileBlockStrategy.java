@@ -21,8 +21,6 @@ import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
 @Component
 public class FileBlockStrategy implements MoveBlockStrategy {
-
-	private static final String FILE_BLOCK = BlockType.FILE_BLOCK.getEngTitle();
 	private final BlockJsonProcessor blockJsonProcessor;
 	private final FileBlockRepository fileBlockRepository;
 
@@ -65,7 +63,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 
 	private void addToFileBlockInfoArray (final List<FileBlock> savedFileBlocks, final ArrayNode blockInfoArray, final Long position, final String fileBlockUUID) {
 		savedFileBlocks.forEach(savedFileBlock ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, FILE_BLOCK, savedFileBlock.getId(), fileBlockUUID)
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.FILE_BLOCK, savedFileBlock.getId(), fileBlockUUID)
 		);
 	}
 

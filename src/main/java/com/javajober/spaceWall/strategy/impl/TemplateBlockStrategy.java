@@ -23,7 +23,6 @@ import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 @Component
 public class TemplateBlockStrategy implements MoveBlockStrategy {
 
-	private static final String TEMPLATE_BLOCK = BlockType.TEMPLATE_BLOCK.getEngTitle();
 	private final BlockJsonProcessor blockJsonProcessor;
 	private final TemplateBlockRepository templateBlockRepository;
 
@@ -65,7 +64,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 
 	private void addToTemplateBlockInfoArray (final List<TemplateBlock> savedTemplateBlocks, final ArrayNode blockInfoArray, final Long position, String templateBlockUUID) {
 		savedTemplateBlocks.forEach(savedTemplateBlock ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, TEMPLATE_BLOCK, savedTemplateBlock.getId(), templateBlockUUID)
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.TEMPLATE_BLOCK, savedTemplateBlock.getId(), templateBlockUUID)
 		);
 	}
 

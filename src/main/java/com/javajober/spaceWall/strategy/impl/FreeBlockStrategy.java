@@ -21,7 +21,6 @@ import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 
 @Component
 public class FreeBlockStrategy implements MoveBlockStrategy {
-	private static final String FREE_BLOCK = BlockType.FREE_BLOCK.getEngTitle();
 	private final BlockJsonProcessor blockJsonProcessor;
 	private final FreeBlockRepository freeBlockRepository;
 
@@ -64,7 +63,7 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 
 	private void addToFreeBlockInfoArray (final List<FreeBlock> savedFreeBlocks, final ArrayNode blockInfoArray, final Long position, final String freeBlockUUID) {
 		savedFreeBlocks.forEach(savedFreeBlock ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, FREE_BLOCK, savedFreeBlock.getId(), freeBlockUUID)
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.FREE_BLOCK, savedFreeBlock.getId(), freeBlockUUID)
 		);
 	}
 
