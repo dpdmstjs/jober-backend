@@ -7,13 +7,16 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.javajober.core.exception.ApplicationException;
 import com.javajober.core.util.response.CommonResponse;
 import com.javajober.spaceWall.dto.request.DataStringSaveRequest;
+import com.javajober.spaceWall.filedto.DataSaveRequest;
 
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
 public interface FixBlockStrategy {
-	void saveBlocks(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final Long position);
+	void saveStringBlocks(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final Long position);
+
+	void saveBlocks(final DataSaveRequest data, ArrayNode blockInfoArray, Long position);
 
 	CommonResponse createFixBlockDTO(final List<JsonNode> fixBlocks);
 
