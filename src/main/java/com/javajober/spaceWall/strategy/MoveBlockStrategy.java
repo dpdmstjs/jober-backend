@@ -20,7 +20,7 @@ public interface MoveBlockStrategy {
 
 	List<CommonResponse> createMoveBlockDTO(List<JsonNode> blocksWithSamePosition);
 
-	Set<Long> updateBlocks(final BlockSaveRequest<?> blocks);
+	Set<Long> updateBlocks(final BlockSaveRequest<?> blocks, final ArrayNode blockInfoArray, final Long position);
 
 	String getStrategyName();
 
