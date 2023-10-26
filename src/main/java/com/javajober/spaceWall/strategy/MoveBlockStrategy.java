@@ -22,6 +22,8 @@ public interface MoveBlockStrategy {
 
 	Set<Long> updateBlocks(final BlockSaveRequest<?> blocks, final ArrayNode blockInfoArray, final Long position);
 
+	void deleteAllById(final Set<Long> blockIds);
+
 	String getStrategyName();
 
 	default void uploadFile(final MultipartFile file) {
