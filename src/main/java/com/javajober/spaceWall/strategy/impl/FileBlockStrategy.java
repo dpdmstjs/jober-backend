@@ -152,6 +152,11 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
+	public void deleteAllById(Set<Long> blockIds) {
+		fileBlockRepository.deleteAllById(blockIds);
+	}
+
+	@Override
 	public String getStrategyName() {
 		return BlockStrategyName.FileBlockStrategy.name();
 	}

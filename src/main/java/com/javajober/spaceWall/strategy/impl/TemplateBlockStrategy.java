@@ -123,6 +123,11 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
+	public void deleteAllById(Set<Long> blockIds) {
+		templateBlockRepository.deleteAllById(blockIds);
+	}
+
+	@Override
 	public String getStrategyName() {
 		return BlockStrategyName.TemplateBlockStrategy.name();
 	}

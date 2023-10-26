@@ -124,6 +124,10 @@ public class ListBlockStrategy implements MoveBlockStrategy {
 		return listBlock;
 	}
 
+	@Override
+	public void deleteAllById(Set<Long> blockIds) {
+		listBlockRepository.deleteAllById(blockIds);
+	}
 
 	@Override
 	public String getStrategyName() {

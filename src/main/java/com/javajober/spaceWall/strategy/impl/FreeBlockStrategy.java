@@ -122,6 +122,11 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
+	public void deleteAllById(Set<Long> blockIds) {
+		freeBlockRepository.deleteAllById(blockIds);
+	}
+
+	@Override
 	public String getStrategyName() {
 		return BlockStrategyName.FreeBlockStrategy.name();
 	}

@@ -128,6 +128,11 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
+	public void deleteAllById(Set<Long> blockIds) {
+		snsBlockRepository.deleteAllById(blockIds);
+	}
+
+	@Override
 	public String getStrategyName() {
 		return BlockStrategyName.SNSBlockStrategy.name();
 	}
