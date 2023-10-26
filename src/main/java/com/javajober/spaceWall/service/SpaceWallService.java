@@ -117,6 +117,11 @@ public class SpaceWallService {
 
 		AddSpace addSpace = addSpaceRepository.findAddSpace(data.getSpaceId());
 
+		boolean existsShareURL = spaceWallRepository.existsByShareURLAndFlag(data.getShareURL(), FlagType.SAVED);
+		if (existsShareURL) {
+			throw new ApplicationException(ApiStatus.ALREADY_EXIST, "이미 사용중인 shareURL입니다.");
+		}
+
 		validateSpaceOwnership(member, addSpace);
 
 		validateAddSpaceId(addSpace.getId());
