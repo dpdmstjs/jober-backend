@@ -109,10 +109,8 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 
 		List<SNSBlock> updatedSNSBlocks = snsBlockRepository.saveAll(snsBlocks);
 
-		Set<Long> updateSNSBlockIds =  updatedSNSBlocks.stream().map(SNSBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
-		updateSNSBlockIds.forEach(blockId ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.SNS_BLOCK, blockId, blocks.getBlockUUID()));
-		return updateSNSBlockIds;
+		return updatedSNSBlocks.stream().map(SNSBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
+
 	}
 
 	private SNSBlock saveOrUpdateSNSBlock(SNSBlockUpdateRequest request) {

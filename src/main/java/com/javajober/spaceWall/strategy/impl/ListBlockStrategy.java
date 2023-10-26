@@ -106,11 +106,7 @@ public class ListBlockStrategy implements MoveBlockStrategy {
 
 		List<ListBlock> updatedListBlocks = listBlockRepository.saveAll(listBlocks);
 
-		Set<Long> updateListBlockIds =  updatedListBlocks.stream().map(ListBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
-		updateListBlockIds.forEach(blockId ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.LIST_BLOCK, blockId, blocks.getBlockUUID()));
-		return updateListBlockIds;
-
+		return updatedListBlocks.stream().map(ListBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private ListBlock saveOrUpdateListBlock (ListBlockUpdateRequest request) {

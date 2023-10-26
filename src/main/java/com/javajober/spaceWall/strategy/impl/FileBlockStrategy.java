@@ -133,10 +133,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 			fileBlocks.add(fileBlock);
 		});
 		List<FileBlock> updatedFileBlocks = fileBlockRepository.saveAll(fileBlocks);
-		Set<Long> updateFileBlockIds = updatedFileBlocks.stream().map(FileBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
-		updateFileBlockIds.forEach(blockId ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.FILE_BLOCK, blockId, blocks.getBlockUUID()));
-		return updateFileBlockIds;
+		return updatedFileBlocks.stream().map(FileBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private FileBlock saveOrUpdateFileBlock(FileBlockStringUpdateRequest request) {

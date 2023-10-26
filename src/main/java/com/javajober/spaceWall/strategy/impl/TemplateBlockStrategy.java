@@ -103,11 +103,10 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 			TemplateBlock templateBlock = saveOrUpdateTemplateBlock(request);
 			templateBlocks.add(templateBlock);
 		});
-		Set<Long> templateBlockIds =  templateBlocks.stream().map(TemplateBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 
-		templateBlockIds.forEach(blockId ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.SNS_BLOCK, blockId, blocks.getBlockUUID()));
-		return templateBlockIds;
+		List<TemplateBlock> updateTemplateBlocks = templateBlockRepository.saveAll(templateBlocks);
+
+		return updateTemplateBlocks.stream().map(TemplateBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private TemplateBlock saveOrUpdateTemplateBlock(TemplateBlockUpdateRequest request) {

@@ -103,10 +103,7 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 			freeBlocks.add(freeBlock);
 		});
 		List<FreeBlock> updatedFreeBlocks = freeBlockRepository.saveAll(freeBlocks);
-		Set<Long> updateFreeBlockIds = updatedFreeBlocks.stream().map(FreeBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
-		updateFreeBlockIds.forEach(blockId ->
-			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.FREE_BLOCK, blockId, blocks.getBlockUUID()));
-		return updateFreeBlockIds;
+		return updatedFreeBlocks.stream().map(FreeBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private FreeBlock saveOrUpdateFreeBlock(FreeBlockUpdateRequest request) {
