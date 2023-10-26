@@ -1,7 +1,6 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,16 +98,17 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 	@Override
 	public Set<Long> updateBlocks(BlockSaveRequest<?> blocks) {
 
-		Set<Long> updateBlockIds = new HashSet<>();
+		List<SNSBlock> snsBlocks = new ArrayList<>();
 
 		blocks.getSubData().forEach(block -> {
 			SNSBlockUpdateRequest request = blockJsonProcessor.convertValue(block, SNSBlockUpdateRequest.class);
 			SNSBlock snsBlock = saveOrUpdateSNSBlock(request);
-			Long snsBlockId = snsBlockRepository.save(snsBlock).getId();
-			updateBlockIds.add(snsBlockId);
+			snsBlocks.add(snsBlock);
 		});
 
-		return updateBlockIds;
+		List<SNSBlock> updatedSNSBlocks = snsBlockRepository.saveAll(snsBlocks);
+
+		return updatedSNSBlocks.stream().map(SNSBlock::getId).collect(Collectors.toSet());
 	}
 
 	private SNSBlock saveOrUpdateSNSBlock(SNSBlockUpdateRequest request) {

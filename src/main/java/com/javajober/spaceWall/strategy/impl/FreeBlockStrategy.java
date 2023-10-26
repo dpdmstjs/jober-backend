@@ -1,7 +1,6 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,15 +94,15 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 	@Override
 	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks) {
 
-		Set<Long> updatedFreeBlockIds = new HashSet<>();
+		List<FreeBlock> freeBlocks = new ArrayList<>();
 
 		blocks.getSubData().forEach(block -> {
 			FreeBlockUpdateRequest request = blockJsonProcessor.convertValue(block, FreeBlockUpdateRequest.class);
 			FreeBlock freeBlock = saveOrUpdateFreeBlock(request);
-			updatedFreeBlockIds.add(freeBlockRepository.save(freeBlock).getId());
+			freeBlocks.add(freeBlock);
 		});
-
-		return updatedFreeBlockIds;
+		List<FreeBlock> updatedFreeBlocks = freeBlockRepository.saveAll(freeBlocks);
+		return updatedFreeBlocks.stream().map(FreeBlock::getId).collect(Collectors.toSet());
 	}
 
 	private FreeBlock saveOrUpdateFreeBlock(FreeBlockUpdateRequest request) {

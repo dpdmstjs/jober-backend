@@ -1,7 +1,6 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Collections;
 import java.util.Set;
@@ -96,14 +95,14 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 	@Override
 	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks) {
 
-		Set<Long> updateTemplateBlockIds = new HashSet<>();
+		List<TemplateBlock> templateBlocks = new ArrayList<>();
 
 		blocks.getSubData().forEach(block -> {
 			TemplateBlockUpdateRequest request = blockJsonProcessor.convertValue(block, TemplateBlockUpdateRequest.class);
 			TemplateBlock templateBlock = saveOrUpdateTemplateBlock(request);
-			updateTemplateBlockIds.add(templateBlockRepository.save(templateBlock).getId());
+			templateBlocks.add(templateBlock);
 		});
-		return updateTemplateBlockIds;
+		return templateBlocks.stream().map(TemplateBlock::getId).collect(Collectors.toSet());
 	}
 
 	private TemplateBlock saveOrUpdateTemplateBlock(TemplateBlockUpdateRequest request) {
