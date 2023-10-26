@@ -169,18 +169,21 @@ public class SpaceWallService {
 		DataStringUpdateRequest data = spaceWallUpdateRequest.getData();
 
 		Long spaceWallId = data.getSpaceWallId();
-		Long addSpaceId = data.getSpaceId();
 
-		memberRepository.findMember(memberId);
-		addSpaceRepository.findAddSpace(addSpaceId);
+		Member member = memberRepository.findMember(memberId);
+		AddSpace addSpace = addSpaceRepository.findAddSpace(data.getSpaceId());
 
-		SpaceWall spaceWall = spaceWallRepository.findSpaceWall(spaceWallId, addSpaceId, memberId, flagType);
+		validateSpaceOwnership(member, addSpace);
+
+		SpaceWall spaceWall = spaceWallRepository.findSpaceWall(spaceWallId, addSpace.getId(), memberId, flagType);
 
 		ArrayNode blockInfoArray = blockJsonProcessor.createArrayNode();
 
 		List<BlockSaveRequest<?>> blocksRequest = data.getBlocks();
 
 		AtomicLong blocksPositionCounter = new AtomicLong(INITIAL_POSITION);
+
+		updateWallInfoBlock(data, blockInfoArray, blocksPositionCounter);
 
 		Map<BlockType, Set<Long>> existingBlockIdsByType = new HashMap<>();
 		Map<BlockType, Set<Long>> updatedBlockIdsByType = new HashMap<>();
@@ -221,11 +224,29 @@ public class SpaceWallService {
 			}
 		}
 
+		updateStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
 		String blocks = blockInfoArray.toString();
 
 		spaceWall.update(data, flagType, blocks);
 		spaceWallId = spaceWallRepository.save(spaceWall).getId();
 
 		return new SpaceWallSaveResponse(spaceWallId);
+	}
+
+	private void updateWallInfoBlock(final DataStringUpdateRequest data, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
+		String wallInfoBlockStrategyName = BlockType.WALL_INFO_BLOCK.getStrategyName();
+		FixBlockStrategy wallInfoBlockStrategy = blockStrategyFactory.findFixBlockStrategy(wallInfoBlockStrategyName);
+
+		Long wallInfoBlockPosition = blocksPositionCounter.getAndIncrement();
+		wallInfoBlockStrategy.updateBlocks(data, blockInfoArray, wallInfoBlockPosition);
+	}
+
+	private void updateStyleSettingBlock(final DataStringUpdateRequest data, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
+
+		String styleSettingBlockStrategyName = BlockType.STYLE_SETTING.getStrategyName();
+		FixBlockStrategy styleSettingBlockStrategy = blockStrategyFactory.findFixBlockStrategy(styleSettingBlockStrategyName);
+
+		Long styleSettingPosition = blocksPositionCounter.getAndIncrement();
+		styleSettingBlockStrategy.updateBlocks(data, blockInfoArray, styleSettingPosition);
 	}
 }
