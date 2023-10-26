@@ -2,6 +2,7 @@ package com.javajober.spaceWall.strategy.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringUpdateRequest;
 import com.javajober.blocks.wallInfoBlock.dto.response.WallInfoBlockResponse;
 import com.javajober.blocks.wallInfoBlock.filedto.WallInfoBlockSaveRequest;
 import com.javajober.core.util.file.FileImageService;
@@ -14,6 +15,7 @@ import com.javajober.blocks.wallInfoBlock.dto.request.WallInfoBlockStringSaveReq
 import com.javajober.blocks.wallInfoBlock.repository.WallInfoBlockRepository;
 import com.javajober.spaceWall.domain.BlockType;
 import com.javajober.spaceWall.dto.request.DataStringSaveRequest;
+import com.javajober.spaceWall.dto.request.DataStringUpdateRequest;
 import com.javajober.spaceWall.filedto.DataSaveRequest;
 import com.javajober.spaceWall.strategy.BlockJsonProcessor;
 import com.javajober.spaceWall.strategy.BlockStrategyName;
@@ -77,6 +79,17 @@ public class WallInfoBlockStrategy implements FixBlockStrategy {
 		WallInfoBlock wallInfoBlock = wallInfoBlockRepository.findWallInfoBlock(blockId);
 
 		return WallInfoBlockResponse.from(wallInfoBlock);
+	}
+
+	@Override
+	public void updateBlocks(final DataStringUpdateRequest data, final ArrayNode blockInfoArray, final Long position) {
+		WallInfoBlockStringUpdateRequest wallInfoBlockRequest = data.getWallInfoBlock();
+		WallInfoBlock wallInfoBlock = wallInfoBlockRepository.findWallInfoBlock(wallInfoBlockRequest.getWallInfoBlockId());
+		wallInfoBlock.update(wallInfoBlockRequest);
+
+		Long wallInfoBlockId = wallInfoBlockRepository.save(wallInfoBlock).getId();
+
+		blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.WALL_INFO_BLOCK, wallInfoBlockId, "");
 	}
 
 	@Override
