@@ -1,13 +1,16 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.javajober.blocks.freeBlock.domain.FreeBlock;
 import com.javajober.blocks.freeBlock.dto.request.FreeBlockSaveRequest;
+import com.javajober.blocks.freeBlock.dto.request.FreeBlockUpdateRequest;
 import com.javajober.blocks.freeBlock.dto.response.FreeBlockResponse;
 import com.javajober.core.util.response.CommonResponse;
 import org.springframework.stereotype.Component;
@@ -87,6 +90,32 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 			subData.add(FreeBlockResponse.from(freeBlock));
 		}
 		return subData;
+	}
+
+	@Override
+	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks) {
+
+		Set<Long> updatedFreeBlockIds = new HashSet<>();
+
+		blocks.getSubData().forEach(block -> {
+			FreeBlockUpdateRequest request = blockJsonProcessor.convertValue(block, FreeBlockUpdateRequest.class);
+			FreeBlock freeBlock = saveOrUpdateFreeBlock(request);
+			updatedFreeBlockIds.add(freeBlockRepository.save(freeBlock).getId());
+		});
+
+		return updatedFreeBlockIds;
+	}
+
+	private FreeBlock saveOrUpdateFreeBlock(FreeBlockUpdateRequest request) {
+
+		if(request.getFreeBlockId() == null) {
+			return FreeBlockUpdateRequest.toEntity(request);
+		}
+
+		FreeBlock freeblock = freeBlockRepository.findFreeBlock(request.getFreeBlockId());
+		freeblock.update(request);
+
+		return freeblock;
 	}
 
 	@Override

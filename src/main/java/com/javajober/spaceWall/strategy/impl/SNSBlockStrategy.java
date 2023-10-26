@@ -1,11 +1,14 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.javajober.blocks.snsBlock.dto.request.SNSBlockUpdateRequest;
 import com.javajober.blocks.snsBlock.dto.response.SNSBlockResponse;
 import com.javajober.core.util.response.CommonResponse;
 
@@ -91,6 +94,33 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 			subData.add(SNSBlockResponse.from(snsBlock));
 		}
 		return subData;
+	}
+
+	@Override
+	public Set<Long> updateBlocks(BlockSaveRequest<?> blocks) {
+
+		Set<Long> updateBlockIds = new HashSet<>();
+
+		blocks.getSubData().forEach(block -> {
+			SNSBlockUpdateRequest request = blockJsonProcessor.convertValue(block, SNSBlockUpdateRequest.class);
+			SNSBlock snsBlock = saveOrUpdateSNSBlock(request);
+			Long snsBlockId = snsBlockRepository.save(snsBlock).getId();
+			updateBlockIds.add(snsBlockId);
+		});
+
+		return updateBlockIds;
+	}
+
+	private SNSBlock saveOrUpdateSNSBlock(SNSBlockUpdateRequest request) {
+
+		if(request.getSnsBlockId() == null) {
+			return SNSBlockUpdateRequest.toEntity(request);
+		}
+
+		SNSBlock snsBlock = snsBlockRepository.findSNSBlock(request.getSnsBlockId());
+		snsBlock.update(request);
+
+		return snsBlock;
 	}
 
 	@Override

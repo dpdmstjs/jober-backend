@@ -1,12 +1,15 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.javajober.blocks.fileBlock.dto.request.FileBlockStringUpdateRequest;
 import com.javajober.blocks.fileBlock.dto.response.FileBlockResponse;
 import com.javajober.blocks.fileBlock.filedto.FileBlockSaveRequest;
 import com.javajober.core.util.file.FileImageService;
@@ -80,7 +83,6 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 		List<FileBlock> stringSavedFileBlocks = saveAllFileBlock(stringFileBlocks);
 
 		addToFileBlockInfoArray(stringSavedFileBlocks, blockInfoArray, position, block.getBlockType());
-
 	}
 
 	private List<FileBlockStringSaveRequest> convertSubDataToFileBlockStringSaveRequests(final List<?> subData) {
@@ -118,6 +120,33 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 			subData.add(FileBlockResponse.from(fileBlock));
 		}
 		return subData;
+	}
+
+	@Override
+	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks) {
+
+		Set<Long> updateFileBlockIds = new HashSet<>();
+
+		blocks.getSubData().forEach(block -> {
+			FileBlockStringUpdateRequest request = blockJsonProcessor.convertValue(block, FileBlockStringUpdateRequest.class);
+			FileBlock fileBlock = saveOrUpdateFileBlock(request);
+			Long snsBlockId = fileBlockRepository.save(fileBlock).getId();
+			updateFileBlockIds.add(snsBlockId);
+
+		});
+		return updateFileBlockIds;
+	}
+
+	private FileBlock saveOrUpdateFileBlock(FileBlockStringUpdateRequest request) {
+
+		if (request.getFileBlockId() == null) {
+			return FileBlockStringUpdateRequest.toEntity(request);
+		}
+
+		FileBlock fileBlock = fileBlockRepository.findFileBlock(request.getFileBlockId());
+		fileBlock.update(request);
+
+		return fileBlock;
 	}
 
 	@Override

@@ -1,11 +1,14 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.javajober.blocks.listBlock.dto.request.ListBlockUpdateRequest;
 import com.javajober.blocks.listBlock.dto.response.ListBlockResponse;
 import com.javajober.core.util.response.CommonResponse;
 import org.springframework.stereotype.Component;
@@ -89,6 +92,33 @@ public class ListBlockStrategy implements MoveBlockStrategy {
 		}
 		return subData;
 	}
+
+	@Override
+	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks) {
+
+		Set<Long> updateListBlockIds = new HashSet<>();
+
+		blocks.getSubData().forEach(block -> {
+			ListBlockUpdateRequest request = blockJsonProcessor.convertValue(block, ListBlockUpdateRequest.class);
+			ListBlock listBlock = saveOrUpdateListBlock(request);
+			Long listBlockId = listBlockRepository.save(listBlock).getId();
+			updateListBlockIds.add(listBlockId);
+		});
+
+		return updateListBlockIds;
+	}
+
+	private ListBlock saveOrUpdateListBlock (ListBlockUpdateRequest request) {
+
+		if(request.getListBlockId() == null) {
+			return ListBlockUpdateRequest.toEntity(request);
+		}
+
+		ListBlock listBlock = listBlockRepository.findListBlock(request.getListBlockId());
+		listBlock.update(request);
+		return listBlock;
+	}
+
 
 	@Override
 	public String getStrategyName() {

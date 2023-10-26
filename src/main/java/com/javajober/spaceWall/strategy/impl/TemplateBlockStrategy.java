@@ -1,12 +1,15 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.javajober.blocks.templateBlock.dto.request.TemplateBlockUpdateRequest;
 import com.javajober.blocks.templateBlock.dto.response.TemplateBlockResponse;
 import com.javajober.core.util.response.CommonResponse;
 import org.springframework.stereotype.Component;
@@ -88,6 +91,31 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 			subData.add(TemplateBlockResponse.of(templateBlock, Collections.emptyList(), Collections.emptyList()));
 		}
 		return subData;
+	}
+
+	@Override
+	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks) {
+
+		Set<Long> updateTemplateBlockIds = new HashSet<>();
+
+		blocks.getSubData().forEach(block -> {
+			TemplateBlockUpdateRequest request = blockJsonProcessor.convertValue(block, TemplateBlockUpdateRequest.class);
+			TemplateBlock templateBlock = saveOrUpdateTemplateBlock(request);
+			updateTemplateBlockIds.add(templateBlockRepository.save(templateBlock).getId());
+		});
+		return updateTemplateBlockIds;
+	}
+
+	private TemplateBlock saveOrUpdateTemplateBlock(TemplateBlockUpdateRequest request) {
+
+		if (request.getTemplateBlockId() == null) {
+			return TemplateBlockUpdateRequest.toEntity(request);
+		}
+
+		TemplateBlock templateBlock = templateBlockRepository.findTemplateBlock(request.getTemplateBlockId());
+		templateBlock.update(request);
+
+		return templateBlock;
 	}
 
 	@Override
