@@ -1,6 +1,7 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -105,7 +106,7 @@ public class ListBlockStrategy implements MoveBlockStrategy {
 
 		List<ListBlock> updatedListBlocks = listBlockRepository.saveAll(listBlocks);
 
-		return updatedListBlocks.stream().map(ListBlock::getId).collect(Collectors.toSet());
+		return updatedListBlocks.stream().map(ListBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private ListBlock saveOrUpdateListBlock (ListBlockUpdateRequest request) {

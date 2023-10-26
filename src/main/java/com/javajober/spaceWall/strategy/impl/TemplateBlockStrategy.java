@@ -1,6 +1,7 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Collections;
 import java.util.Set;
@@ -102,7 +103,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 			TemplateBlock templateBlock = saveOrUpdateTemplateBlock(request);
 			templateBlocks.add(templateBlock);
 		});
-		return templateBlocks.stream().map(TemplateBlock::getId).collect(Collectors.toSet());
+		return templateBlocks.stream().map(TemplateBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private TemplateBlock saveOrUpdateTemplateBlock(TemplateBlockUpdateRequest request) {

@@ -1,6 +1,7 @@
 package com.javajober.spaceWall.strategy.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -132,7 +133,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 			fileBlocks.add(fileBlock);
 		});
 		List<FileBlock> updatedFileBlocks = fileBlockRepository.saveAll(fileBlocks);
-		return updatedFileBlocks.stream().map(FileBlock::getId).collect(Collectors.toSet());
+		return updatedFileBlocks.stream().map(FileBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	private FileBlock saveOrUpdateFileBlock(FileBlockStringUpdateRequest request) {
