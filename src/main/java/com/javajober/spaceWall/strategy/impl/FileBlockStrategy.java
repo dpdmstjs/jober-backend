@@ -123,7 +123,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks) {
+	public Set<Long> updateBlocks(final BlockSaveRequest<?> blocks, final ArrayNode blockInfoArray, final Long position) {
 
 		List<FileBlock> fileBlocks = new ArrayList<>();
 
@@ -133,7 +133,10 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 			fileBlocks.add(fileBlock);
 		});
 		List<FileBlock> updatedFileBlocks = fileBlockRepository.saveAll(fileBlocks);
-		return updatedFileBlocks.stream().map(FileBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
+		Set<Long> updateFileBlockIds = updatedFileBlocks.stream().map(FileBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
+		updateFileBlockIds.forEach(blockId ->
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.FILE_BLOCK, blockId, blocks.getBlockUUID()));
+		return updateFileBlockIds;
 	}
 
 	private FileBlock saveOrUpdateFileBlock(FileBlockStringUpdateRequest request) {
