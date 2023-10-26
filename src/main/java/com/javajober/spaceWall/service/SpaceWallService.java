@@ -24,7 +24,11 @@ import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -178,6 +182,11 @@ public class SpaceWallService {
 
 		AtomicLong blocksPositionCounter = new AtomicLong(INITIAL_POSITION);
 
+		Map<BlockType, Set<Long>> existingBlockIdsByType = new HashMap<>();
+		Map<BlockType, Set<Long>> updatedBlockIdsByType = new HashMap<>();
+
+		String existingBlocks = spaceWall.getBlocks();
+
 		blocksRequest.forEach(block -> {
 
 			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
@@ -186,12 +195,31 @@ public class SpaceWallService {
 			String strategyName = blockType.getStrategyName();
 			MoveBlockStrategy moveBlockStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
 
-			Set<Long> blockIds = moveBlockStrategy.updateBlocks(block);
+			if (!existingBlockIdsByType.containsKey(blockType)) {
+				Set<Long> existingBlockIdsForThisType = blockJsonProcessor.existingBlockIds(existingBlocks, blockType);
+				existingBlockIdsByType.put(blockType, existingBlockIdsForThisType);
+			}
 
-			blockIds.forEach(blockId -> {
-				blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, blockType, blockId, block.getBlockUUID());
-			});
+			Set<Long> updatedIds = moveBlockStrategy.updateBlocks(block, blockInfoArray, position);
+
+			updatedIds.forEach(blockId ->
+				blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, blockType, blockId, block.getBlockUUID()));
+
+			if (!updatedBlockIdsByType.containsKey(blockType)) {
+				updatedBlockIdsByType.put(blockType, new HashSet<>());
+			}
+			updatedBlockIdsByType.get(blockType).addAll(updatedIds);
 		});
+
+		for (BlockType blockType : existingBlockIdsByType.keySet()) {
+			Set<Long> remainingBlockIds = existingBlockIdsByType.get(blockType);
+			remainingBlockIds.removeAll(updatedBlockIdsByType.getOrDefault(blockType, Collections.emptySet()));
+			if (!remainingBlockIds.isEmpty()) {
+				MoveBlockStrategy bloCKProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(
+					(blockType.getStrategyName()));
+				bloCKProcessingStrategy.deleteAllById(remainingBlockIds);
+			}
+		}
 
 		String blocks = blockInfoArray.toString();
 
