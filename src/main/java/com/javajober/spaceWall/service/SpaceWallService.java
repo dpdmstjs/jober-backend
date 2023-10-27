@@ -171,6 +171,7 @@ public class SpaceWallService {
 		Long spaceWallId = data.getSpaceWallId();
 
 		Member member = memberRepository.findMember(memberId);
+
 		AddSpace addSpace = addSpaceRepository.findAddSpace(data.getSpaceId());
 
 		validateSpaceOwnership(member, addSpace);
@@ -186,48 +187,21 @@ public class SpaceWallService {
 		updateWallInfoBlock(data, blockInfoArray, blocksPositionCounter);
 
 		Map<BlockType, Set<Long>> existingBlockIdsByType = new HashMap<>();
+
 		Map<BlockType, Set<Long>> updatedBlockIdsByType = new HashMap<>();
 
 		String existingBlocks = spaceWall.getBlocks();
 
-		blocksRequest.forEach(block -> {
+		processBlocks(blocksRequest, blockInfoArray, blocksPositionCounter, existingBlockIdsByType, updatedBlockIdsByType, existingBlocks);
 
-			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
-			Long position = blocksPositionCounter.getAndIncrement();
-
-			String strategyName = blockType.getStrategyName();
-			MoveBlockStrategy moveBlockStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
-
-			if (!existingBlockIdsByType.containsKey(blockType)) {
-				Set<Long> existingBlockIdsForThisType = blockJsonProcessor.existingBlockIds(existingBlocks, blockType);
-				existingBlockIdsByType.put(blockType, existingBlockIdsForThisType);
-			}
-
-			Set<Long> updatedIds = moveBlockStrategy.updateBlocks(block, blockInfoArray, position);
-
-			updatedIds.forEach(blockId ->
-				blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, blockType, blockId, block.getBlockUUID()));
-
-			if (!updatedBlockIdsByType.containsKey(blockType)) {
-				updatedBlockIdsByType.put(blockType, new HashSet<>());
-			}
-			updatedBlockIdsByType.get(blockType).addAll(updatedIds);
-		});
-
-		for (BlockType blockType : existingBlockIdsByType.keySet()) {
-			Set<Long> remainingBlockIds = existingBlockIdsByType.get(blockType);
-			remainingBlockIds.removeAll(updatedBlockIdsByType.getOrDefault(blockType, Collections.emptySet()));
-			if (!remainingBlockIds.isEmpty()) {
-				MoveBlockStrategy bloCKProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(
-					(blockType.getStrategyName()));
-				bloCKProcessingStrategy.deleteAllById(remainingBlockIds);
-			}
-		}
+		deleteRemainingBlocks(existingBlockIdsByType, updatedBlockIdsByType);
 
 		updateStyleSettingBlock(data, blockInfoArray, blocksPositionCounter);
+
 		String blocks = blockInfoArray.toString();
 
 		spaceWall.update(data, flagType, blocks);
+
 		spaceWallId = spaceWallRepository.save(spaceWall).getId();
 
 		return new SpaceWallSaveResponse(spaceWallId);
@@ -239,6 +213,48 @@ public class SpaceWallService {
 
 		Long wallInfoBlockPosition = blocksPositionCounter.getAndIncrement();
 		wallInfoBlockStrategy.updateBlocks(data, blockInfoArray, wallInfoBlockPosition);
+	}
+
+	private void processBlocks(final List<BlockSaveRequest<?>> blocksRequest, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter,
+		final Map<BlockType, Set<Long>> existingBlockIdsByType, final Map<BlockType, Set<Long>> updatedBlockIdsByType, final String existingBlocks) {
+		blocksRequest.forEach(block -> {
+			BlockType blockType = BlockType.findBlockTypeByString(block.getBlockType());
+			Long position = blocksPositionCounter.getAndIncrement();
+			String strategyName = blockType.getStrategyName();
+			MoveBlockStrategy moveBlockStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
+			processBlock(block, blockInfoArray, position, existingBlockIdsByType, updatedBlockIdsByType, existingBlocks, blockType, moveBlockStrategy);
+		});
+	}
+
+	private void processBlock(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position,
+		final Map<BlockType, Set<Long>> existingBlockIdsByType, final Map<BlockType, Set<Long>> updatedBlockIdsByType, final String existingBlocks, final BlockType blockType, MoveBlockStrategy moveBlockStrategy) {
+
+		if (!existingBlockIdsByType.containsKey(blockType)) {
+			Set<Long> existingBlockIdsForThisType = blockJsonProcessor.existingBlockIds(existingBlocks, blockType);
+			existingBlockIdsByType.put(blockType, existingBlockIdsForThisType);
+		}
+
+		Set<Long> updatedIds = moveBlockStrategy.updateBlocks(block, blockInfoArray, position);
+
+		updatedIds.forEach(blockId ->
+			blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, blockType, blockId, block.getBlockUUID()));
+
+		if (!updatedBlockIdsByType.containsKey(blockType)) {
+			updatedBlockIdsByType.put(blockType, new HashSet<>());
+		}
+		updatedBlockIdsByType.get(blockType).addAll(updatedIds);
+	}
+
+	private void deleteRemainingBlocks(final Map<BlockType, Set<Long>> existingBlockIdsByType, final Map<BlockType, Set<Long>> updatedBlockIdsByType) {
+		for (BlockType blockType : existingBlockIdsByType.keySet()) {
+			Set<Long> remainingBlockIds = existingBlockIdsByType.get(blockType);
+			remainingBlockIds.removeAll(updatedBlockIdsByType.getOrDefault(blockType, Collections.emptySet()));
+			if (!remainingBlockIds.isEmpty()) {
+				MoveBlockStrategy blockProcessingStrategy = blockStrategyFactory.findMoveBlockStrategy(
+					(blockType.getStrategyName()));
+				blockProcessingStrategy.deleteAllById(remainingBlockIds);
+			}
+		}
 	}
 
 	private void updateStyleSettingBlock(final DataStringUpdateRequest data, final ArrayNode blockInfoArray, final AtomicLong blocksPositionCounter) {
