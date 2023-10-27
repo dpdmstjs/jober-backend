@@ -68,7 +68,7 @@ public class SpaceWallService {
 
 		validateAddSpaceId(addSpace.getId(), flagType);
 
-		checkDuplicateShareURL(data.getShareURL());
+		checkDuplicateShareURL(data.getShareURL(), flagType);
 
 		SpaceWallCategoryType spaceWallCategoryType = SpaceWallCategoryType.findSpaceWallCategoryTypeByString(data.getCategory());
 
@@ -107,9 +107,9 @@ public class SpaceWallService {
 		}
 	}
 
-	private void checkDuplicateShareURL(final String shareURL) {
+	private void checkDuplicateShareURL(final String shareURL, FlagType flagType) {
 		boolean existsShareURL = spaceWallRepository.existsByShareURLAndFlag(shareURL, FlagType.SAVED);
-		if (existsShareURL) {
+		if (existsShareURL && flagType == FlagType.SAVED) {
 			throw new ApplicationException(ApiStatus.ALREADY_EXIST, "이미 사용중인 shareURL입니다.");
 		}
 	}
