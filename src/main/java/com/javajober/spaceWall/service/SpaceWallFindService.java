@@ -1,25 +1,11 @@
 package com.javajober.spaceWall.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javajober.backgroundSetting.dto.response.BackgroundSettingResponse;
-import com.javajober.blockSetting.dto.response.BlockSettingResponse;
-import com.javajober.core.error.exception.Exception500;
-import com.javajober.core.message.ErrorMessage;
-import com.javajober.core.util.CommonResponse;
-import com.javajober.fileBlock.domain.FileBlock;
-import com.javajober.fileBlock.dto.response.FileBlockResponse;
-import com.javajober.fileBlock.repository.FileBlockRepository;
-import com.javajober.freeBlock.domain.FreeBlock;
-import com.javajober.freeBlock.dto.response.FreeBlockResponse;
-import com.javajober.freeBlock.repository.FreeBlockRepository;
-import com.javajober.listBlock.domain.ListBlock;
-import com.javajober.listBlock.dto.response.ListBlockResponse;
-import com.javajober.listBlock.repository.ListBlockRepository;
-import com.javajober.snsBlock.domain.SNSBlock;
-import com.javajober.snsBlock.dto.response.SNSBlockResponse;
-import com.javajober.snsBlock.repository.SNSBlockRepository;
+
+import com.javajober.core.exception.ApiStatus;
+import com.javajober.core.exception.ApplicationException;
+import com.javajober.core.security.JwtTokenizer;
+import com.javajober.core.util.response.CommonResponse;
 import com.javajober.spaceWall.domain.BlockType;
 import com.javajober.spaceWall.domain.FlagType;
 import com.javajober.spaceWall.domain.SpaceWall;
@@ -27,60 +13,44 @@ import com.javajober.spaceWall.dto.response.BlockResponse;
 import com.javajober.spaceWall.dto.response.DuplicateURLResponse;
 import com.javajober.spaceWall.dto.response.SpaceWallResponse;
 import com.javajober.spaceWall.repository.SpaceWallRepository;
-import com.javajober.styleSetting.domain.StyleSetting;
-import com.javajober.styleSetting.dto.response.StyleSettingResponse;
-import com.javajober.styleSetting.repository.StyleSettingRepository;
-import com.javajober.templateBlock.domain.TemplateBlock;
-import com.javajober.templateBlock.dto.response.TemplateBlockResponse;
-import com.javajober.templateBlock.repository.TemplateBlockRepository;
-import com.javajober.themeSetting.dto.response.ThemeSettingResponse;
-import com.javajober.wallInfoBlock.domain.WallInfoBlock;
-import com.javajober.wallInfoBlock.dto.response.WallInfoBlockResponse;
-import com.javajober.wallInfoBlock.repository.WallInfoBlockRepository;
+import com.javajober.spaceWall.strategy.BlockJsonProcessor;
+import com.javajober.spaceWall.strategy.BlockStrategyFactory;
+import com.javajober.spaceWall.strategy.FixBlockStrategy;
+import com.javajober.spaceWall.strategy.MoveBlockStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class SpaceWallFindService {
 
-    private final SpaceWallRepository spaceWallRepository;
-    private final SNSBlockRepository snsBlockRepository;
-    private final FreeBlockRepository freeBlockRepository;
-    private final TemplateBlockRepository templateBlockRepository;
-    private final WallInfoBlockRepository wallInfoBlockRepository;
-    private final FileBlockRepository fileBlockRepository;
-    private final ListBlockRepository listBlockRepository;
-    private final StyleSettingRepository styleSettingRepository;
+    private static final String BLOCK_UUID_KEY = "block_uuid";
+    private static final String BLOCK_TYPE_KEY = "block_type";
+    private static final Long INITIAL_POSITION = 1L;
 
-    public SpaceWallFindService(
-            final SpaceWallRepository spaceWallRepository, final SNSBlockRepository snsBlockRepository,
-            final FreeBlockRepository freeBlockRepository, final TemplateBlockRepository templateBlockRepository,
-            final WallInfoBlockRepository wallInfoBlockRepository, final FileBlockRepository fileBlockRepository,
-            final ListBlockRepository listBlockRepository, final StyleSettingRepository styleSettingRepository) {
+    private final SpaceWallRepository spaceWallRepository;
+    private final BlockStrategyFactory blockStrategyFactory;
+    private final BlockJsonProcessor jsonProcessor;
+
+    public SpaceWallFindService(final SpaceWallRepository spaceWallRepository, final BlockStrategyFactory blockStrategyFactory,
+                                final BlockJsonProcessor jsonProcessor) {
 
         this.spaceWallRepository = spaceWallRepository;
-        this.snsBlockRepository = snsBlockRepository;
-        this.freeBlockRepository = freeBlockRepository;
-        this.templateBlockRepository = templateBlockRepository;
-        this.wallInfoBlockRepository = wallInfoBlockRepository;
-        this.fileBlockRepository = fileBlockRepository;
-        this.listBlockRepository = listBlockRepository;
-        this.styleSettingRepository = styleSettingRepository;
+        this.blockStrategyFactory = blockStrategyFactory;
+        this.jsonProcessor = jsonProcessor;
     }
 
     public DuplicateURLResponse hasDuplicateShareURL(final String shareURL) {
-        boolean hasDuplicateURL = spaceWallRepository.existsByShareURL(shareURL);
+        boolean hasDuplicateURL = spaceWallRepository.existsByShareURLAndFlag(shareURL, FlagType.SAVED);
         return new DuplicateURLResponse(hasDuplicateURL);
     }
 
     @Transactional
-    public SpaceWallResponse findByShareURL(final String shareURL){
-
+    public SpaceWallResponse findByShareURL(final String shareURL, final String token, final JwtTokenizer jwtTokenizer) {
         SpaceWall spaceWall = spaceWallRepository.getByShareURL(shareURL);
+        checkToken(token, jwtTokenizer, spaceWall);
+
         Long memberId = spaceWall.getMember().getId();
         Long spaceId = spaceWall.getAddSpace().getId();
         Long spaceWallId = spaceWall.getId();
@@ -88,106 +58,92 @@ public class SpaceWallFindService {
         return find(memberId, spaceId, spaceWallId, FlagType.SAVED);
     }
 
+    private void checkToken(final String token, final JwtTokenizer jwtTokenizer, final SpaceWall spaceWall) {
+        if (token == null) {
+            if (!spaceWall.getIsPublic()) {
+                throw new ApplicationException(ApiStatus.FORBIDDEN, "공유페이지에 접근 권한이 없습니다.");
+            }
+            return;
+        }
+        Long memberIdFromToken = jwtTokenizer.getUserIdFromToken(token);
+        Long memberIdFromSpaceWall = spaceWall.getMember().getId();
+        if ((!Objects.equals(memberIdFromToken, memberIdFromSpaceWall)) && !spaceWall.getIsPublic()) {
+            throw new ApplicationException(ApiStatus.FORBIDDEN, "공유페이지에 접근 권한이 없습니다.");
+        }
+    }
+
     @Transactional
     public SpaceWallResponse find(final Long memberId, final Long spaceId, final Long spaceWallId, final FlagType flag) {
-
         SpaceWall spaceWall = spaceWallRepository.findSpaceWall(spaceWallId, spaceId, memberId, flag);
-        String blocksPS = spaceWall.getBlocks();
+        Map<Long, List<JsonNode>> groupedBlockByPosition = jsonProcessor.toJsonNode(spaceWall.getBlocks());
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootNode = null;
-        try {
-            rootNode = mapper.readTree(blocksPS);
-        } catch (JsonProcessingException e) {
-            throw new Exception500(ErrorMessage.JSON_PROCESSING_ERROR);
-        }
-        List<BlockResponse<CommonResponse>> blocks = new ArrayList<>();
-        WallInfoBlockResponse wallInfoBlockResponse = new WallInfoBlockResponse();
-        StyleSettingResponse styleSettingResponse = new StyleSettingResponse();
+        CommonResponse wallInfoBlockResponse = createWallInfoBlock(groupedBlockByPosition);
+        CommonResponse styleSettingResponse = createStyleSettingBlock(groupedBlockByPosition);
+        List<BlockResponse<CommonResponse>> blocks = createBlockResponses(groupedBlockByPosition);
 
-        Map<Long, List<JsonNode>> groupedNodesByPosition = StreamSupport.stream(rootNode.spliterator(), false)
-                .sorted(Comparator.comparingInt(a -> a.get("position").asInt()))
-                .collect(Collectors.groupingBy(node -> (long) node.get("position").asInt()));
-
-        Long maxPosition = groupedNodesByPosition.keySet().stream()
-                .max(Long::compareTo)
-                .orElse(null);
-
-        for (Map.Entry<Long, List<JsonNode>> entry : groupedNodesByPosition.entrySet()) {
-            Long currentPosition = entry.getKey();
-            if (currentPosition.equals(1L)) {
-                wallInfoBlockResponse = createWallInfoBlockDTO(entry);
-                continue;
-            }
-            if (currentPosition.equals(maxPosition)) {
-                styleSettingResponse = createStyleSettingDTO(entry);
-                continue;
-            }
-
-            String blockUUID = "";
-            String blockTypeString = "";
-            List<JsonNode> nodesWithSamePosition = entry.getValue();
-            List<CommonResponse> subData = new ArrayList<>();
-
-            for (JsonNode node : nodesWithSamePosition) {
-
-                Long blockId = node.get("blockId").asLong();
-                blockUUID = node.get("blockUUID").asText();
-
-                blockTypeString = node.get("blockType").asText();
-                BlockType blockType = BlockType.findBlockTypeByString(blockTypeString);
-
-                subData.add(createBlockDTO(blockType, blockId));
-            }
-            BlockResponse<CommonResponse> blockResponse = BlockResponse.from(blockUUID, blockTypeString, subData);
-            blocks.add(blockResponse);
-        }
         String category = spaceWall.getSpaceWallCategoryType().getEngTitle();
         String shareURL = spaceWall.getShareURL();
+        Boolean isPublic = spaceWall.getIsPublic();
 
-        return new SpaceWallResponse(category, memberId, spaceId, shareURL, wallInfoBlockResponse, blocks, styleSettingResponse);
+        return new SpaceWallResponse(category, spaceWallId, isPublic, shareURL, wallInfoBlockResponse, blocks, styleSettingResponse);
     }
 
-    private CommonResponse createBlockDTO(final BlockType blockType, final Long blockId) {
+    private CommonResponse createWallInfoBlock(Map<Long, List<JsonNode>> groupedBlockByPosition) {
+        List<JsonNode> wallInfoBlocks = groupedBlockByPosition.get(INITIAL_POSITION);
 
-        switch (blockType) {
-            case FREE_BLOCK:
-                FreeBlock freeBlock = freeBlockRepository.findFreeBlock(blockId);
-                return FreeBlockResponse.from(freeBlock);
-            case SNS_BLOCK:
-                SNSBlock snsBlock = snsBlockRepository.findSNSBlock(blockId);
-                return SNSBlockResponse.from(snsBlock);
-            case FILE_BLOCK:
-                FileBlock fileBlock = fileBlockRepository.findFileBlock(blockId);
-                return FileBlockResponse.from(fileBlock);
-            case LIST_BLOCK:
-                ListBlock listBlock = listBlockRepository.findListBlock(blockId);
-                return ListBlockResponse.from(listBlock);
-            case TEMPLATE_BLOCK:
-                TemplateBlock templateBlock = templateBlockRepository.findTemplateBlock(blockId);
-                return TemplateBlockResponse.of(templateBlock, Collections.emptyList(), Collections.emptyList());
+        if (wallInfoBlocks == null || wallInfoBlocks.isEmpty()) {
+            throw new ApplicationException(ApiStatus.FAIL, "wallInfoBlock 조회를 실패했습니다.");
         }
-        return null;
+
+        FixBlockStrategy blockStrategy = blockStrategyFactory.findFixBlockStrategy(getBlockTypeStrategyName(wallInfoBlocks));
+        return blockStrategy.createFixBlockDTO(wallInfoBlocks);
     }
 
-    private WallInfoBlockResponse createWallInfoBlockDTO(final Map.Entry<Long, List<JsonNode>> entry) {
+    private CommonResponse createStyleSettingBlock(Map<Long, List<JsonNode>> groupedBlockByPosition) {
+        Long endPosition = groupedBlockByPosition.keySet().stream()
+                .max(Long::compareTo)
+                .orElseThrow(() -> new ApplicationException(ApiStatus.FAIL, "endPosition이 없습니다."));
 
-        Long blockId = entry.getValue().get(0).get("blockId").asLong();
-        WallInfoBlock wallInfoBlock = wallInfoBlockRepository.findWallInfoBlock(blockId);
+        List<JsonNode> styleSettingBlocks = groupedBlockByPosition.get(endPosition);
+        String blockTypeString = styleSettingBlocks.get(0).path(BLOCK_TYPE_KEY).asText();
 
-        return WallInfoBlockResponse.from(wallInfoBlock);
+        if (!blockTypeString.equals(BlockType.STYLE_SETTING.name())) {
+            throw new ApplicationException(ApiStatus.FAIL, "styleSetting 조회를 실패하였습니다.");
+        }
+
+        FixBlockStrategy blockStrategy = blockStrategyFactory.findFixBlockStrategy(getBlockTypeStrategyName(styleSettingBlocks));
+        return blockStrategy.createFixBlockDTO(styleSettingBlocks);
     }
 
-    private StyleSettingResponse createStyleSettingDTO(final Map.Entry<Long, List<JsonNode>> entry) {
+    private List<BlockResponse<CommonResponse>> createBlockResponses(Map<Long, List<JsonNode>> groupedBlockByPosition) {
+        List<BlockResponse<CommonResponse>> blocks = new ArrayList<>();
 
-        Long styleSettingBlockId = entry.getValue().get(0).get("blockId").asLong();
-        StyleSetting styleSetting = styleSettingRepository.findStyleBlock(styleSettingBlockId);
+        for (Map.Entry<Long, List<JsonNode>> entry : groupedBlockByPosition.entrySet()) {
+            Long currentPosition = entry.getKey();
+            List<JsonNode> blocksWithSamePosition = entry.getValue();
+            String strategyName = getBlockTypeStrategyName(blocksWithSamePosition);
 
-        BackgroundSettingResponse backgroundSettingResponse = BackgroundSettingResponse.from(styleSetting.getBackgroundSetting());
-        BlockSettingResponse blockSettingResponse = BlockSettingResponse.from(styleSetting.getBlockSetting());
-        ThemeSettingResponse themeSettingResponse = ThemeSettingResponse.from(styleSetting.getThemeSetting());
+            if (currentPosition.equals(INITIAL_POSITION) || strategyName.equals(BlockType.STYLE_SETTING.getStrategyName())) {
+                continue;
+            }
+            MoveBlockStrategy blockStrategy = blockStrategyFactory.findMoveBlockStrategy(strategyName);
+            List<CommonResponse> subData = blockStrategy.createMoveBlockDTO(blocksWithSamePosition);
 
-        return new StyleSettingResponse(styleSettingBlockId, backgroundSettingResponse, blockSettingResponse, themeSettingResponse);
-
+            String blockTypeEngTitle = getBlockTypeEngTitle(blocksWithSamePosition.get(0));
+            String blockUUID = blocksWithSamePosition.get(0).path(BLOCK_UUID_KEY).asText();
+            BlockResponse<CommonResponse> blockResponse = new BlockResponse<>(blockUUID, blockTypeEngTitle, subData);
+            blocks.add(blockResponse);
+        }
+        return blocks;
     }
+
+    private String getBlockTypeStrategyName(List<JsonNode> blocksWithSamePosition) {
+        return BlockType.valueOf(blocksWithSamePosition.get(0).path(BLOCK_TYPE_KEY).asText()).getStrategyName();
+    }
+
+    private String getBlockTypeEngTitle(JsonNode block) {
+        BlockType blockType = BlockType.valueOf(block.path(BLOCK_TYPE_KEY).asText());
+        return blockType.getEngTitle();
+    }
+
 }

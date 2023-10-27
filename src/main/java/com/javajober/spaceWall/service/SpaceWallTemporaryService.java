@@ -1,7 +1,5 @@
 package com.javajober.spaceWall.service;
 
-import com.javajober.core.error.exception.Exception404;
-import com.javajober.core.message.ErrorMessage;
 import com.javajober.spaceWall.domain.FlagType;
 import com.javajober.spaceWall.domain.SpaceWall;
 import com.javajober.spaceWall.dto.response.SpaceWallTemporaryResponse;
@@ -11,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SpaceWallTemporaryService {
@@ -29,21 +26,15 @@ public class SpaceWallTemporaryService {
 
         List<SpaceWall> spaceWalls = spaceWallRepository.findSpaceWallsOrThrow(memberId, addSpaceId);
 
-        spaceWalls.forEach(spaceWall -> {
-            if (spaceWall.getFlag().equals(FlagType.PENDING)) {
-                entityManager.remove(spaceWall);
-            }
-        });
+        spaceWalls.removeIf(spaceWall -> !spaceWall.getFlag().equals(FlagType.PENDING));
+
+        spaceWalls.forEach(entityManager::remove);
     }
 
     public SpaceWallTemporaryResponse hasSpaceWallTemporary(final Long memberId, final Long addSpaceId) {
 
-        Optional<SpaceWall> spaceWall = spaceWallRepository.findByMemberIdAndAddSpaceIdAndFlag(memberId, addSpaceId, FlagType.PENDING);
-        if (spaceWall.isPresent()) {
-            Long spaceWallId = spaceWall.get().getId();
-            return new SpaceWallTemporaryResponse(spaceWallId, true);
-        }
-
-        return new SpaceWallTemporaryResponse(null, false);
+        return spaceWallRepository.findSpaceWallId(memberId, addSpaceId, FlagType.PENDING)
+                .map(spaceWallId -> new SpaceWallTemporaryResponse(spaceWallId, true))
+                .orElseGet(() -> new SpaceWallTemporaryResponse(0L, false));
     }
 }

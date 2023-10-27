@@ -1,28 +1,53 @@
 package com.javajober.space.controller;
 
-import com.javajober.core.message.SuccessMessage;
-import com.javajober.core.util.ApiUtils;
+import com.javajober.core.util.response.ApiResponse;
+import com.javajober.core.exception.ApiStatus;
+import com.javajober.core.exception.ApplicationException;
+import com.javajober.core.security.JwtTokenizer;
+import com.javajober.space.domain.SpaceType;
+import com.javajober.space.dto.request.SpaceSaveRequest;
+import com.javajober.space.dto.response.SpaceResponse;
+import com.javajober.space.dto.response.SpaceSaveResponse;
 import com.javajober.space.service.SpaceService;
-import com.javajober.space.dto.response.DataResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RequestMapping("/api")
 @RestController
-@RequestMapping("/api/employee")
 public class SpaceController {
 
     private final SpaceService spaceService;
+    private final JwtTokenizer jwtTokenizer;
 
-    public SpaceController(final SpaceService spaceService) {
+    public SpaceController(final SpaceService spaceService, final JwtTokenizer jwtTokenizer) {
         this.spaceService = spaceService;
+        this.jwtTokenizer = jwtTokenizer;
     }
 
-    @GetMapping("/{memberId}/{addSpaceId}")
-    public ResponseEntity<ApiUtils.ApiResponse<DataResponse>> find (@PathVariable final Long memberId, @PathVariable final Long addSpaceId, @RequestParam final String spaceType) {
+    @PostMapping("/space")
+    public ResponseEntity<ApiResponse.Response<SpaceSaveResponse>> save(
+            @RequestBody final SpaceSaveRequest request, @RequestHeader("Authorization") String token){
 
-        DataResponse data = spaceService.find(memberId, addSpaceId, spaceType);
+        if (!request.getSpaceType().equals(SpaceType.ORGANIZATION.getEngTitle())){
+            throw new ApplicationException(ApiStatus.INVALID_DATA, "스페이스 생성은 organization만 가능");
+        }
+        Long memberId = jwtTokenizer.getUserIdFromToken(token);
+        SpaceSaveResponse data = spaceService.save(request, memberId);
 
-        return ResponseEntity.ok(ApiUtils.success(HttpStatus.OK, SuccessMessage.SPACE_READ_SUCCESS, data));
+        return ApiResponse.response(ApiStatus.OK, "스페이스 저장을 성공했습니다.", data);
+    }
+
+    @GetMapping("/employee/{addSpaceId}")
+    public ResponseEntity<ApiResponse.Response<SpaceResponse>> find(
+            @PathVariable final Long addSpaceId, @RequestParam final String spaceType, @RequestHeader("Authorization") String token) {
+
+        if (spaceType.isEmpty()) {
+            throw new ApplicationException(ApiStatus.OBJECT_EMPTY, "spaceType 값이 요청되지 않았습니다.");
+        }
+
+        Long memberId = jwtTokenizer.getUserIdFromToken(token);
+        SpaceResponse data = spaceService.find(addSpaceId, spaceType, memberId);
+
+        return ApiResponse.response(ApiStatus.OK, "스페이스 조회를 성공했습니다.", data);
     }
 }

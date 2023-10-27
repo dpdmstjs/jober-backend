@@ -1,8 +1,6 @@
 package com.javajober.spaceWall.dto.response;
 
-import com.javajober.core.util.CommonResponse;
-import com.javajober.styleSetting.dto.response.StyleSettingResponse;
-import com.javajober.wallInfoBlock.dto.response.WallInfoBlockResponse;
+import com.javajober.core.util.response.CommonResponse;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,22 +10,22 @@ import java.util.List;
 public class SpaceWallResponse {
 
     private String category;
-    private Long memberId;
-    private Long spaceId;
+    private Long spaceWallId;
+    private Boolean isPublic;
     private String shareURL;
-    private WallInfoBlockResponse wallInfoBlock;
+    private CommonResponse wallInfoBlock;
     private List<BlockResponse<CommonResponse>> blocks;
-    private StyleSettingResponse styleSetting;
+    private CommonResponse styleSetting;
 
     private SpaceWallResponse() {}
 
     @Builder
-    public SpaceWallResponse(final String category, final Long memberId, final Long spaceId,
-                             final String shareURL, final WallInfoBlockResponse wallInfoBlock, final List<BlockResponse<CommonResponse>> blocks,
-                             final StyleSettingResponse styleSetting) {
+    public SpaceWallResponse(final String category, final Long spaceWallId, final Boolean isPublic, final String shareURL, final CommonResponse wallInfoBlock,
+                             final List<BlockResponse<CommonResponse>> blocks, final CommonResponse styleSetting) {
+
         this.category = category;
-        this.memberId = memberId;
-        this.spaceId = spaceId;
+        this.spaceWallId = spaceWallId;
+        this.isPublic = isPublic;
         this.shareURL = shareURL;
         this.wallInfoBlock = wallInfoBlock;
         this.blocks = blocks;
