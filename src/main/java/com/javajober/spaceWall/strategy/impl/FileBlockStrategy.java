@@ -33,7 +33,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 	private final FileImageService fileImageService;
 	private final AtomicReference<String> currentFileName = new AtomicReference<>();
 
-	public FileBlockStrategy(BlockJsonProcessor blockJsonProcessor, FileBlockRepository fileBlockRepository,
+	public FileBlockStrategy(final BlockJsonProcessor blockJsonProcessor, final FileBlockRepository fileBlockRepository,
 		FileImageService fileImageService) {
 		this.blockJsonProcessor = blockJsonProcessor;
 		this.fileBlockRepository = fileBlockRepository;
@@ -132,11 +132,13 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 			FileBlock fileBlock = saveOrUpdateFileBlock(request);
 			fileBlocks.add(fileBlock);
 		});
+
 		List<FileBlock> updatedFileBlocks = fileBlockRepository.saveAll(fileBlocks);
+
 		return updatedFileBlocks.stream().map(FileBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
-	private FileBlock saveOrUpdateFileBlock(FileBlockStringUpdateRequest request) {
+	private FileBlock saveOrUpdateFileBlock(final FileBlockStringUpdateRequest request) {
 
 		if (request.getFileBlockId() == null) {
 			return FileBlockStringUpdateRequest.toEntity(request);
@@ -149,7 +151,7 @@ public class FileBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void deleteAllById(Set<Long> blockIds) {
+	public void deleteAllById(final Set<Long> blockIds) {
 		fileBlockRepository.deleteAllById(blockIds);
 	}
 

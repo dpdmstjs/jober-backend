@@ -49,7 +49,7 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(BlockSaveRequest<?> block, ArrayNode blockInfoArray, Long position) {
+	public void saveBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position) {
 		List<SNSBlockSaveRequest> snsBlockRequests = convertSubDataToSNSBlockSaveRequests(block.getSubData());
 
 		List<SNSBlock> snsBlocks = convertToSNSBlocks(snsBlockRequests);
@@ -113,7 +113,7 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 
 	}
 
-	private SNSBlock saveOrUpdateSNSBlock(SNSBlockUpdateRequest request) {
+	private SNSBlock saveOrUpdateSNSBlock(final SNSBlockUpdateRequest request) {
 
 		if(request.getSnsBlockId() == null) {
 			return SNSBlockUpdateRequest.toEntity(request);
@@ -126,7 +126,7 @@ public class SNSBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void deleteAllById(Set<Long> blockIds) {
+	public void deleteAllById(final Set<Long> blockIds) {
 		snsBlockRepository.deleteAllById(blockIds);
 	}
 

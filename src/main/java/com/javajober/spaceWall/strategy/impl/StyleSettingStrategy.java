@@ -63,7 +63,7 @@ public class StyleSettingStrategy implements FixBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(final DataSaveRequest data, ArrayNode blockInfoArray, Long position) {
+	public void saveBlocks(final DataSaveRequest data, final ArrayNode blockInfoArray, final Long position) {
 		StyleSettingSaveRequest request = data.getStyleSetting();
 
 		Long styleSettingId = saveStyleSetting(request);
@@ -75,7 +75,7 @@ public class StyleSettingStrategy implements FixBlockStrategy {
 		uploadedStyleImageURL.set(fileImageService.uploadFile(styleImgURL));
 	}
 
-	private Long saveStyleSetting(final StyleSettingSaveRequest request){
+	private Long saveStyleSetting(final StyleSettingSaveRequest request) {
 
 		BackgroundSettingSaveRequest backgroundRequest = request.getBackgroundSetting();
 		BackgroundSetting backgroundSetting = backgroundSettingRepository.save(BackgroundSettingSaveRequest.toEntity(backgroundRequest, uploadedStyleImageURL.get()));
@@ -92,14 +92,14 @@ public class StyleSettingStrategy implements FixBlockStrategy {
 	}
 
 	@Override
-	public void saveStringBlocks(DataStringSaveRequest data, ArrayNode blockInfoArray, Long position) {
+	public void saveStringBlocks(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final Long position) {
 		StyleSettingStringSaveRequest request = data.getStyleSetting();
 
 		Long styleSettingId = saveStringStyleSetting(request);
 		blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.STYLE_SETTING, styleSettingId, "");
 	}
 
-	private Long saveStringStyleSetting(final StyleSettingStringSaveRequest request){
+	private Long saveStringStyleSetting(final StyleSettingStringSaveRequest request) {
 
 		BackgroundSettingStringSaveRequest backgroundRequest = request.getBackgroundSetting();
 		BackgroundSetting backgroundSetting = backgroundSettingRepository.save(BackgroundSettingStringSaveRequest.toEntity(backgroundRequest));
@@ -116,7 +116,7 @@ public class StyleSettingStrategy implements FixBlockStrategy {
 	}
 
 	@Override
-	public CommonResponse createFixBlockDTO(List<JsonNode> fixBlocks) {
+	public CommonResponse createFixBlockDTO(final List<JsonNode> fixBlocks) {
 		Long blockId = fixBlocks.get(0).path("block_id").asLong();
 		StyleSetting styleSetting = styleSettingRepository.findStyleBlock(blockId);
 
@@ -128,10 +128,11 @@ public class StyleSettingStrategy implements FixBlockStrategy {
 	}
 
 	@Override
-	public void updateBlocks(DataStringUpdateRequest data, ArrayNode blockInfoArray, Long position) {
+	public void updateBlocks(final DataStringUpdateRequest data, final ArrayNode blockInfoArray, final Long position) {
 		StyleSettingStringUpdateRequest request = data.getStyleSetting();
 
 		Long styleSettingId = updateStringStyleSetting(request);
+
 		blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.STYLE_SETTING, styleSettingId, "");
 	}
 

@@ -45,7 +45,7 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(BlockSaveRequest<?> block, ArrayNode blockInfoArray, Long position) {
+	public void saveBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position) {
 		List<FreeBlockSaveRequest> freeBlockRequests = convertSubDataToFreeBlockSaveRequests(block.getSubData());
 
 		List<FreeBlock> freeBlocks = convertToFreeBlocks(freeBlockRequests);
@@ -102,11 +102,13 @@ public class FreeBlockStrategy implements MoveBlockStrategy {
 			FreeBlock freeBlock = saveOrUpdateFreeBlock(request);
 			freeBlocks.add(freeBlock);
 		});
+
 		List<FreeBlock> updatedFreeBlocks = freeBlockRepository.saveAll(freeBlocks);
+
 		return updatedFreeBlocks.stream().map(FreeBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
-	private FreeBlock saveOrUpdateFreeBlock(FreeBlockUpdateRequest request) {
+	private FreeBlock saveOrUpdateFreeBlock(final FreeBlockUpdateRequest request) {
 
 		if(request.getFreeBlockId() == null) {
 			return FreeBlockUpdateRequest.toEntity(request);

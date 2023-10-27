@@ -32,7 +32,7 @@ public class WallInfoBlockStrategy implements FixBlockStrategy {
 	private final AtomicReference<String> uploadedBackgroundImgURL = new AtomicReference<>();
 	private final AtomicReference<String> uploadedWallInfoImgURL = new AtomicReference<>();
 
-	public WallInfoBlockStrategy(BlockJsonProcessor blockJsonProcessor, WallInfoBlockRepository wallInfoBlockRepository,
+	public WallInfoBlockStrategy(final BlockJsonProcessor blockJsonProcessor, final WallInfoBlockRepository wallInfoBlockRepository,
 		FileImageService fileImageService) {
 		this.blockJsonProcessor = blockJsonProcessor;
 		this.wallInfoBlockRepository = wallInfoBlockRepository;
@@ -40,7 +40,7 @@ public class WallInfoBlockStrategy implements FixBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(DataSaveRequest data, ArrayNode blockInfoArray, Long position) {
+	public void saveBlocks(final DataSaveRequest data, final ArrayNode blockInfoArray, final Long position) {
 		WallInfoBlockSaveRequest request = data.getWallInfoBlock();
 		Long wallInfoBlockId = saveWallInfoBlock(request);
 
@@ -53,20 +53,20 @@ public class WallInfoBlockStrategy implements FixBlockStrategy {
 		uploadedWallInfoImgURL.set(fileImageService.uploadFile(wallInfoImgURL));
 	}
 
-	private Long saveWallInfoBlock(WallInfoBlockSaveRequest request) {
+	private Long saveWallInfoBlock(final WallInfoBlockSaveRequest request) {
 
 		WallInfoBlock wallInfoBlock = WallInfoBlockSaveRequest.toEntity(request, uploadedBackgroundImgURL.get(), uploadedWallInfoImgURL.get());
 		return wallInfoBlockRepository.save(wallInfoBlock).getId();
 	}
 
 	@Override
-	public void saveStringBlocks(DataStringSaveRequest data, ArrayNode blockInfoArray, Long position) {
+	public void saveStringBlocks(final DataStringSaveRequest data, final ArrayNode blockInfoArray, final Long position) {
 		WallInfoBlockStringSaveRequest request = data.getWallInfoBlock();
 		Long wallInfoBlockId = saveWallInfoBlock(request);
 		blockJsonProcessor.addBlockInfoToArray(blockInfoArray, position, BlockType.WALL_INFO_BLOCK, wallInfoBlockId,"");
 	}
 
-	private Long saveWallInfoBlock(WallInfoBlockStringSaveRequest request) {
+	private Long saveWallInfoBlock(final WallInfoBlockStringSaveRequest request) {
 
 		WallInfoBlock wallInfoBlock = WallInfoBlockStringSaveRequest.toEntity(request);
 		return wallInfoBlockRepository.save(wallInfoBlock).getId();
@@ -74,7 +74,7 @@ public class WallInfoBlockStrategy implements FixBlockStrategy {
 
 
 	@Override
-	public CommonResponse createFixBlockDTO(List<JsonNode> fixBlocks) {
+	public CommonResponse createFixBlockDTO(final List<JsonNode> fixBlocks) {
 		long blockId = fixBlocks.get(0).path("block_id").asLong();
 		WallInfoBlock wallInfoBlock = wallInfoBlockRepository.findWallInfoBlock(blockId);
 

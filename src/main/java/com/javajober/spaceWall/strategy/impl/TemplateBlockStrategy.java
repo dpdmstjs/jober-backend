@@ -46,7 +46,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void saveBlocks(BlockSaveRequest<?> block, ArrayNode blockInfoArray, Long position) {
+	public void saveBlocks(final BlockSaveRequest<?> block, final ArrayNode blockInfoArray, final Long position) {
 		List<TemplateBlockSaveRequest> templateBlockRequests = convertSubDataToTemplateBlockSaveRequests(block.getSubData());
 
 		List<TemplateBlock> templateBlocks = convertToTemplateBlocks(templateBlockRequests);
@@ -83,7 +83,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public List<CommonResponse> createMoveBlockDTO(List<JsonNode> blocksWithSamePosition) {
+	public List<CommonResponse> createMoveBlockDTO(final List<JsonNode> blocksWithSamePosition) {
 		List<CommonResponse> subData = new ArrayList<>();
 		for (JsonNode block : blocksWithSamePosition) {
 			long blockId = block.path("block_id").asLong();
@@ -109,7 +109,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 		return updateTemplateBlocks.stream().map(TemplateBlock::getId).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
-	private TemplateBlock saveOrUpdateTemplateBlock(TemplateBlockUpdateRequest request) {
+	private TemplateBlock saveOrUpdateTemplateBlock(final TemplateBlockUpdateRequest request) {
 
 		if (request.getTemplateBlockId() == null) {
 			return TemplateBlockUpdateRequest.toEntity(request);
@@ -122,7 +122,7 @@ public class TemplateBlockStrategy implements MoveBlockStrategy {
 	}
 
 	@Override
-	public void deleteAllById(Set<Long> blockIds) {
+	public void deleteAllById(final Set<Long> blockIds) {
 		templateBlockRepository.deleteAllById(blockIds);
 	}
 
