@@ -43,10 +43,10 @@ public class SpaceWallService {
 	private final BlockJsonProcessor blockJsonProcessor;
 
 	public SpaceWallService(final SpaceWallRepository spaceWallRepository,
-							final MemberRepository memberRepository,
-							final AddSpaceRepository addSpaceRepository,
-							final BlockStrategyFactory blockStrategyFactory,
-							final BlockJsonProcessor blockJsonProcessor) {
+		final MemberRepository memberRepository,
+		final AddSpaceRepository addSpaceRepository,
+		final BlockStrategyFactory blockStrategyFactory,
+		final BlockJsonProcessor blockJsonProcessor) {
 
 		this.spaceWallRepository = spaceWallRepository;
 		this.memberRepository = memberRepository;
