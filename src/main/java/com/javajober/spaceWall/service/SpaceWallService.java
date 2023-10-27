@@ -66,7 +66,7 @@ public class SpaceWallService {
 
 		validateSpaceOwnership(member, addSpace);
 
-		validateAddSpaceId(addSpace.getId());
+		validateAddSpaceId(addSpace.getId(), flagType);
 
 		checkDuplicateShareURL(data.getShareURL());
 
@@ -100,9 +100,9 @@ public class SpaceWallService {
 		}
 	}
 
-	private void validateAddSpaceId (final Long spaceId) {
+	private void validateAddSpaceId (final Long spaceId, FlagType flagType) {
 		boolean existsSpaceId = spaceWallRepository.existsByAddSpaceId(spaceId);
-		if (existsSpaceId) {
+		if (existsSpaceId && flagType == FlagType.SAVED) {
 			throw new ApplicationException(ApiStatus.INVALID_DATA, "스페이스 하나당 공유페이지 하나만 생성 가능합니다.");
 		}
 	}
