@@ -15,7 +15,6 @@ import com.javajober.space.dto.response.MemberGroupResponse;
 import com.javajober.spaceWall.domain.FlagType;
 import com.javajober.spaceWall.repository.SpaceWallRepository;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -37,17 +36,20 @@ public class SpaceService {
     private final AddSpaceRepository addSpaceRepository;
     private final SpaceWallRepository spaceWallRepository;
 
-    public SpaceService(final MemberRepository memberRepository, final MemberGroupRepository memberGroupRepository,
-                        final AddSpaceRepository addSpaceRepository, final SpaceWallRepository spaceWallRepository) {
-
+    public SpaceService(
+        final MemberRepository memberRepository,
+        final MemberGroupRepository memberGroupRepository,
+        final AddSpaceRepository addSpaceRepository,
+        final SpaceWallRepository spaceWallRepository
+    ) {
         this.memberRepository = memberRepository;
         this.memberGroupRepository = memberGroupRepository;
         this.addSpaceRepository = addSpaceRepository;
         this.spaceWallRepository = spaceWallRepository;
     }
 
-    @Async("threadPoolTaskExecutor")
-    public void initializeAndSaveNewMemberSpaces(Member member) {
+
+    public void initializeAndSaveNewMemberSpaces(final Member member) {
 
         log.info("initializeAndSaveNewMemberSpaces 시작: {}, 스레드 이름: {}", member.getMemberName(), Thread.currentThread().getName());
 
@@ -67,7 +69,7 @@ public class SpaceService {
         log.info("initializeAndSaveNewMemberSpaces 종료: {}, 스레드 이름: {}", member.getMemberName(), Thread.currentThread().getName());
     }
 
-    private SpaceSaveRequest createSpaceSaveRequest(String spaceTitle, String spaceType, String representativeName) {
+    private SpaceSaveRequest createSpaceSaveRequest(final String spaceTitle, final String spaceType, final String representativeName) {
         return SpaceSaveRequest.builder()
             .spaceTitle(spaceTitle)
             .spaceType(spaceType)
@@ -76,12 +78,12 @@ public class SpaceService {
     }
 
     @Transactional
-    public void saveSpaces(Set<AddSpace> spaces) {
+    public void saveSpaces(final Set<AddSpace> spaces) {
         addSpaceRepository.saveAll(spaces);
     }
 
 
-    public SpaceSaveResponse save(SpaceSaveRequest request, Long memberId) {
+    public SpaceSaveResponse save(final SpaceSaveRequest request, final Long memberId) {
         Member member = memberRepository.findMember(memberId);
         AddSpace space = SpaceSaveRequest.toEntity(request, member);
         Long spaceId = addSpaceRepository.save(space).getId();
@@ -89,7 +91,7 @@ public class SpaceService {
         return new SpaceSaveResponse(spaceId);
     }
 
-    public SpaceResponse find(Long addSpaceId, String spaceTypeString, Long memberId) {
+    public SpaceResponse find(final Long addSpaceId, final String spaceTypeString, final Long memberId) {
         SpaceType spaceType = SpaceType.findSpaceTypeByString(spaceTypeString);
         List<Long> addSpaceIds = addSpaceRepository.findAddSpaceIds(spaceType, memberId);
         existsAddSpace(addSpaceId, addSpaceIds);
@@ -102,7 +104,7 @@ public class SpaceService {
                 .orElseGet(() -> new SpaceResponse(false, 0L, memberGroupResponses));
     }
 
-    private static void existsAddSpace(Long addSpaceId, List<Long> addSpaceIds) {
+    private static void existsAddSpace(final Long addSpaceId, final List<Long> addSpaceIds) {
         boolean containsId = addSpaceIds.stream().anyMatch(id -> Objects.equals(id, addSpaceId));
         if(!containsId) {
             throw new ApplicationException(ApiStatus.NOT_FOUND, "존재하지 않는 스페이스입니다.");
