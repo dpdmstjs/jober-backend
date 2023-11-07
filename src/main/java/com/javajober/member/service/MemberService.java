@@ -21,8 +21,6 @@ import com.javajober.core.security.JwtTokenizer;
 import com.javajober.core.refreshToken.domain.RefreshToken;
 import com.javajober.space.service.SpaceService;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 public class MemberService {
 	private final MemberRepository memberRepository;
