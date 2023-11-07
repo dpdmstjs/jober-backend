@@ -1,8 +1,9 @@
 package com.javajober.member.event;
 
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.javajober.space.service.SpaceService;
 
@@ -15,7 +16,7 @@ public class MemberSignupEventHandler {
 		this.spaceService = spaceService;
 	}
 
-	@EventListener(MemberSignupEvent.class)
+	@TransactionalEventListener(classes = MemberSignupEvent.class, phase = TransactionPhase.AFTER_COMMIT)
 	@Async("threadPoolTaskExecutor")
 	public void handleMemberSignupEvent(final MemberSignupEvent event) {
 		spaceService.initializeAndSaveNewMemberSpaces(event.getMember());

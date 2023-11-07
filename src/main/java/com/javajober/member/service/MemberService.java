@@ -28,7 +28,6 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenizer jwtTokenizer;
 	private final RefreshTokenRepository refreshTokenRepository;
-
 	private final ApplicationEventPublisher eventPublisher;
 
 	public MemberService(
