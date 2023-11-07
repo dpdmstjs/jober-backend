@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,11 @@ import com.javajober.member.dto.MemberLoginRequest;
 import com.javajober.member.dto.MemberLoginResponse;
 import com.javajober.member.dto.MemberSignupRequest;
 import com.javajober.member.dto.MemberSignupResponse;
+import com.javajober.member.event.MemberSignupEvent;
 import com.javajober.member.repository.MemberRepository;
 import com.javajober.core.refreshToken.repository.RefreshTokenRepository;
 import com.javajober.core.security.JwtTokenizer;
 import com.javajober.core.refreshToken.domain.RefreshToken;
-import com.javajober.space.service.SpaceService;
 
 @Service
 public class MemberService {
@@ -27,19 +28,25 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenizer jwtTokenizer;
 	private final RefreshTokenRepository refreshTokenRepository;
-	private final SpaceService spaceService;
 
-	public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer,
-		RefreshTokenRepository refreshTokenRepository, SpaceService spaceService) {
+	private final ApplicationEventPublisher eventPublisher;
+
+	public MemberService(
+		final MemberRepository memberRepository,
+		final PasswordEncoder passwordEncoder,
+		final JwtTokenizer jwtTokenizer,
+		final RefreshTokenRepository refreshTokenRepository,
+		final ApplicationEventPublisher eventPublisher
+	) {
 		this.memberRepository = memberRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtTokenizer = jwtTokenizer;
 		this.refreshTokenRepository = refreshTokenRepository;
-		this.spaceService = spaceService;
+		this.eventPublisher = eventPublisher;
 	}
 
 	@Transactional
-	public MemberSignupResponse signup(MemberSignupRequest memberSignupRequest) {
+	public MemberSignupResponse signup(final MemberSignupRequest memberSignupRequest) {
 		Optional<Member> existingMember = memberRepository.findMember(memberSignupRequest.getEmail());
 
 		if (existingMember.isPresent()) {
@@ -50,13 +57,13 @@ public class MemberService {
 		member.setPassword(passwordEncoder.encode(memberSignupRequest.getPassword()));
 		Member saveMember = memberRepository.save(member);
 
-		spaceService.initializeAndSaveNewMemberSpaces(member);
+		eventPublisher.publishEvent(new MemberSignupEvent(member));
 
 		return new MemberSignupResponse(saveMember);
 	}
 
 	@Transactional
-	public MemberLoginResponse login(MemberLoginRequest loginDto) {
+	public MemberLoginResponse login(final MemberLoginRequest loginDto) {
 		Member member = memberRepository.findMember(loginDto.getEmail()).orElseThrow(()
 			-> new ApplicationException(ApiStatus.NOT_FOUND, "존재하지 않는 회원 아이디입니다."));
 
