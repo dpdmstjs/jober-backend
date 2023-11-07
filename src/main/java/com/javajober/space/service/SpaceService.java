@@ -14,12 +14,21 @@ import com.javajober.space.dto.response.SpaceResponse;
 import com.javajober.space.dto.response.MemberGroupResponse;
 import com.javajober.spaceWall.domain.FlagType;
 import com.javajober.spaceWall.repository.SpaceWallRepository;
+
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
+import javax.transaction.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class SpaceService {
 
@@ -36,6 +45,41 @@ public class SpaceService {
         this.addSpaceRepository = addSpaceRepository;
         this.spaceWallRepository = spaceWallRepository;
     }
+
+    @Async("threadPoolTaskExecutor")
+    public void initializeAndSaveNewMemberSpaces(Member member) {
+
+        log.info("initializeAndSaveNewMemberSpaces 시작: {}, 스레드 이름: {}", member.getMemberName(), Thread.currentThread().getName());
+
+        SpaceSaveRequest personalSpaceRequest = createSpaceSaveRequest(member.getMemberName(), SpaceType.PERSONAL.getEngTitle(), member.getMemberName());
+        SpaceSaveRequest organizationSpaceRequest = createSpaceSaveRequest(member.getMemberName(), SpaceType.ORGANIZATION.getEngTitle(), "임시회사명");
+
+        Set<AddSpace> spaces = new HashSet<>();
+
+        AddSpace personalSpace = SpaceSaveRequest.toEntity(personalSpaceRequest, member);
+        spaces.add(personalSpace);
+
+        AddSpace organizationSpace = SpaceSaveRequest.toEntity(organizationSpaceRequest, member);
+        spaces.add(organizationSpace);
+
+        saveSpaces(spaces);
+
+        log.info("initializeAndSaveNewMemberSpaces 종료: {}, 스레드 이름: {}", member.getMemberName(), Thread.currentThread().getName());
+    }
+
+    private SpaceSaveRequest createSpaceSaveRequest(String spaceTitle, String spaceType, String representativeName) {
+        return SpaceSaveRequest.builder()
+            .spaceTitle(spaceTitle)
+            .spaceType(spaceType)
+            .representativeName(representativeName)
+            .build();
+    }
+
+    @Transactional
+    public void saveSpaces(Set<AddSpace> spaces) {
+        addSpaceRepository.saveAll(spaces);
+    }
+
 
     public SpaceSaveResponse save(SpaceSaveRequest request, Long memberId) {
         Member member = memberRepository.findMember(memberId);
@@ -64,5 +108,4 @@ public class SpaceService {
             throw new ApplicationException(ApiStatus.NOT_FOUND, "존재하지 않는 스페이스입니다.");
         }
     }
-
 }
