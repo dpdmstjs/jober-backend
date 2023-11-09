@@ -1,6 +1,5 @@
 package com.javajober.member.service;
 
-
 import java.util.Optional;
 
 import javax.transaction.Transactional;
