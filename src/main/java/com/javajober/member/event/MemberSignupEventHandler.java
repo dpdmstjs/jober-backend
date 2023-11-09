@@ -16,8 +16,8 @@ public class MemberSignupEventHandler {
 		this.spaceService = spaceService;
 	}
 
-	@TransactionalEventListener(classes = MemberSignupEvent.class, phase = TransactionPhase.AFTER_COMMIT)
 	@Async("threadPoolTaskExecutor")
+	@TransactionalEventListener(classes = MemberSignupEvent.class, phase = TransactionPhase.AFTER_COMMIT)
 	public void handleMemberSignupEvent(final MemberSignupEvent event) {
 		spaceService.initializeAndSaveNewMemberSpaces(event.getMember());
 	}
